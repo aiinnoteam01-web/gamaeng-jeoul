@@ -1,0 +1,42 @@
+name: inspect
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "확인할 연도"
+        required: true
+        default: "2024"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    env:
+      FTC_FRANCHISE_KEY: ${{ secrets.FTC_FRANCHISE_KEY }}
+      DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 설정 점검
+        run: python run.py check
+
+      - name: 브랜드 목록
+        continue-on-error: true
+        run: python run.py inspect brand_list --year ${{ inputs.year }}
+
+      - name: 브랜드별 가맹점 현황
+        continue-on-error: true
+        run: python run.py inspect brand_stats --year ${{ inputs.year }}
+
+      - name: 주요 업종별 개폐점률
+        continue-on-error: true
+        run: python run.py inspect industry_stats --year ${{ inputs.year }}
+
+      - name: 정보공개서 목록
+        continue-on-error: true
+        run: python run.py inspect ftc_list --year ${{ inputs.year }}
