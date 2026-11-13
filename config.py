@@ -41,33 +41,34 @@ FTC = {
 }
 
 # ── 공공데이터포털 (data.go.kr) ───────────────────────────────
-# url 은 .env 에서 읽습니다. 요청변수 이름(year_param 등)은 각 API 명세서에 맞게 고치세요.
+# 요청주소는 공공데이터포털 활용신청 상세기능정보에서 확인한 주소입니다 (공개 정보라 코드에 넣어 둠).
 DATA_GO_KR = {
     "brand_list": {
         "title": "공정거래위원회_가맹정보_브랜드 목록 정보 제공 서비스",
-        "url": os.environ.get("DGK_BRAND_LIST_URL", ""),
-        "year_param": "yr",            # 명세서의 연도 요청변수명 (예: yr, jngBizCrtraYr)
+        "url": os.environ.get("DGK_BRAND_LIST_URL") or "https://apis.data.go.kr/1130000/FftcBrandRlsInfo2_Service/getBrandinfo",
+        # 연도 요청변수 이름 후보. 앞에서부터 차례로 시도해 데이터가 나오는 이름을 자동으로 씁니다.
+        "year_param": ["jngBizCrtraYr", "yr", "crtrYr", "baseYr"],
         "extra": {},                   # 그 밖의 필수 요청변수 {"이름": "값"}
         "enabled": True,
     },
     "brand_stats": {
         "title": "공정거래위원회_가맹정보_브랜드별 가맹점 현황 제공 서비스",
-        "url": os.environ.get("DGK_BRAND_STATS_URL", ""),
-        "year_param": "yr",
+        "url": os.environ.get("DGK_BRAND_STATS_URL") or "https://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats",
+        "year_param": ["yr", "jngBizCrtraYr", "crtrYr", "baseYr"],
         "extra": {},
         "enabled": True,
     },
     "industry_stats": {
         "title": "공정거래위원회_가맹정보 주요 업종별 가맹점수, 개폐점률 현황 제공 서비스",
-        "url": os.environ.get("DGK_INDUSTRY_STATS_URL", ""),
-        "year_param": "yr",
+        "url": os.environ.get("DGK_INDUSTRY_STATS_URL") or "https://apis.data.go.kr/1130000/FftcIndutyFrcsCntOpclStatsService/getIndutyFrcsCntOpclStats",
+        "year_param": ["jngBizCrtraYr", "yr", "crtrYr"],
         "extra": {},
         "enabled": True,
     },
     "region_sales": {
         "title": "공정거래위원회_가맹정보_지역별 업종별 평균 매출액 현황 제공 서비스",
         "url": os.environ.get("DGK_REGION_SALES_URL", ""),
-        "year_param": "yr",
+        "year_param": ["jngBizCrtraYr", "yr"],
         "extra": {},                   # 업종 대분류코드가 필수라면 여기에 넣으세요 (예: {"indutyLclasCd": "..."})
         "enabled": False,              # 지역 기능을 만들 때 True 로
     },
@@ -90,6 +91,7 @@ FIELDS = {
         "corp": ["jnghdqrtrsConmNm", "corpNm", "conmNm", "jnghdqrtrsNm"],
         "sector": ["indutyMlsfcNm", "indutyMclasNm", "indutyNm", "induty"],
         "biz_no": ["brno", "bizrno", "jnghdqrtrsBrno"],
+        "start_date": ["jngBizStrtDate", "jngBizBgngDate", "jngBizStrtDe", "bizStrtDate"],
     },
     "brand_stats": {
         "brand_id": ["brandMnno", "brandMngNo", "brandNo", "brandSn", "brndMnno"],
