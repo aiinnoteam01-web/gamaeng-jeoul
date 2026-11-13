@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>가맹저울 · 프랜차이즈 가맹 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F4F6F8; --surface:#FFFFFF; --line:#DDE2E8; --line2:#EEF1F4; --muted:#F9FAFB; --track:#EEF1F4;
+  --text:#16202B; --sub:#4F5B67; --faint:#8A96A3;
+  --accent:#1D4ED8; --accent-strong:#1E3A8A; --accent-soft:#EEF3FD; --on-accent:#FFFFFF;
+  --ok-bg:#E6EEFB; --ok-fg:#1E3A8A; --b-bg:#E3F2F0; --b-fg:#115E54;
+  --warn-bg:#FDF1DC; --warn-fg:#8A4B00; --warn:#F0B34A;
+  --bad-bg:#FBE4DC; --bad-fg:#9A2A0A; --bad:#9A2A0A;
+  --strong-bg:#FDF5E8;
+  --c1:#1E3A8A; --c2:#3B6FE0; --c3:#7FA3EC; --c4:#B8CBF4; --c5:#DCE5FA;
+  --band:#16202B; --band-text:#FFFFFF; --band-sub:#A9C2F5; --band-body:#E2E6EA;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0F141A; --surface:#171D24; --line:#2A333D; --line2:#222A33; --muted:#1D242C; --track:#2A333D;
+    --text:#E7ECF1; --sub:#A3AEBA; --faint:#6E7A86;
+    --accent:#7BA1F7; --accent-strong:#A9C2F5; --accent-soft:#1C2A44; --on-accent:#0F141A;
+    --ok-bg:#1C2A44; --ok-fg:#A9C2F5; --b-bg:#13302C; --b-fg:#8FD8CB;
+    --warn-bg:#3A2A10; --warn-fg:#F5C77A; --warn:#E0A43C;
+    --bad-bg:#3D1B12; --bad-fg:#F4A58C; --bad:#E07A5A;
+    --strong-bg:#2E2414;
+    --c1:#A9C2F5; --c2:#7BA1F7; --c3:#4F78D6; --c4:#34529A; --c5:#23375F;
+    --band:#22303F; --band-text:#FFFFFF; --band-sub:#A9C2F5; --band-body:#D5DCE3;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0F141A; --surface:#171D24; --line:#2A333D; --line2:#222A33; --muted:#1D242C; --track:#2A333D;
+  --text:#E7ECF1; --sub:#A3AEBA; --faint:#6E7A86;
+  --accent:#7BA1F7; --accent-strong:#A9C2F5; --accent-soft:#1C2A44; --on-accent:#0F141A;
+  --ok-bg:#1C2A44; --ok-fg:#A9C2F5; --b-bg:#13302C; --b-fg:#8FD8CB;
+  --warn-bg:#3A2A10; --warn-fg:#F5C77A; --warn:#E0A43C;
+  --bad-bg:#3D1B12; --bad-fg:#F4A58C; --bad:#E07A5A;
+  --strong-bg:#2E2414;
+  --c1:#A9C2F5; --c2:#7BA1F7; --c3:#4F78D6; --c4:#34529A; --c5:#23375F;
+  --band:#22303F; --band-text:#FFFFFF; --band-sub:#A9C2F5; --band-body:#D5DCE3;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;font-size:15px;line-height:1.5}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1360px;margin:0 auto;padding:0 24px}
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-top:14px;padding-bottom:14px}
+.logo{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--accent);text-decoration:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:44px;padding:0 18px;border-radius:22px;border:1px solid var(--line);background:var(--surface);font-size:15px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-left:auto;align-items:center}
+.field{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--sub)}
+.input,.select{height:44px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--muted);color:var(--text);font-size:15px}
+.input{width:220px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+main{padding:22px 0 40px}
+.stack{display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.h2{margin:0;font-size:20px;font-weight:800}
+.meta{font-size:13px;color:var(--sub)}
+.row-between{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.insight{padding:18px 20px}
+.insight .tag{font-size:13px;font-weight:700;color:var(--accent)}
+.insight .head{font-size:16px;font-weight:800;margin-top:6px;line-height:1.45}
+.insight .sub{font-size:13px;color:var(--sub);margin-top:6px}
+.split{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.split > .main{flex:999 1 640px;min-width:0}
+.split > .side{flex:1 1 360px;max-width:100%}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:13px 12px;text-align:right;vertical-align:top}
+thead th{background:var(--muted);color:var(--sub);font-size:13px;font-weight:500}
+thead th.sorted{color:var(--accent);font-weight:700}
+tbody tr{border-top:1px solid var(--line2)}
+tbody tr.on{background:var(--accent-soft)}
+th.name{text-align:left;padding-left:20px;font-weight:400}
+.namebtn{display:block;width:100%;text-align:left;background:none;border:0;padding:2px 0;cursor:pointer}
+.namebtn strong{font-size:16px}
+.namebtn span{display:block;font-size:13px;color:var(--sub);margin-top:3px;line-height:1.45}
+.pill{display:inline-flex;align-items:baseline;gap:4px;padding:3px 11px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill strong{font-size:16px}
+.g-A{background:var(--ok-bg);color:var(--ok-fg)} .g-B{background:var(--b-bg);color:var(--b-fg)}
+.g-C{background:var(--warn-bg);color:var(--warn-fg)} .g-D{background:var(--bad-bg);color:var(--bad-fg)}
+.s-ok{background:var(--ok-bg);color:var(--ok-fg)} .s-warn{background:var(--warn-bg);color:var(--warn-fg)} .s-bad{background:var(--bad-bg);color:var(--bad-fg)}
+.up{color:var(--accent-strong);font-weight:700} .down{color:var(--bad-fg);font-weight:700}
+.small{font-size:13px;color:var(--sub)}
+.foot{margin:0;padding:12px 20px;border-top:1px solid var(--line2);font-size:13px;color:var(--sub)}
+.panel{padding:22px;display:flex;flex-direction:column;gap:18px}
+.gradebox{display:flex;align-items:center;gap:16px}
+.gradecircle{width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.gradecircle b{font-size:30px;line-height:1}
+.gradecircle span{font-size:12px;margin-top:2px}
+.gradecircle.big{width:108px;height:108px}
+.gradecircle.big b{font-size:44px}
+.title-lg{font-size:22px;font-weight:800}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tile{background:var(--bg);border-radius:10px;padding:10px 4px;text-align:center}
+.tile div:first-child{font-size:12px;color:var(--sub)}
+.tile div:last-child{font-size:19px;font-weight:800}
+.sec-title{font-size:14px;font-weight:700;margin-bottom:8px}
+.plot{position:relative;height:220px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--muted)}
+.plot .vline{position:absolute;top:0;bottom:0;border-left:1px dashed var(--line)}
+.plot .hline{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
+.plot .q{position:absolute;left:8px;top:6px;font-size:11px;font-weight:700;color:var(--accent)}
+.dot{position:absolute;transform:translate(-50%,50%);border-radius:50%;border:2px solid var(--surface);padding:0;cursor:pointer}
+.dot span{position:absolute;left:50%;top:calc(100% + 2px);transform:translateX(-50%);white-space:nowrap;font-size:11px;color:var(--text)}
+.dot.on{box-shadow:0 0 0 3px var(--text)}
+.dot.on span{font-weight:800}
+.axisline{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:4px}
+.patterns{display:flex;flex-direction:column;gap:6px}
+.patline{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:8px 12px;background:var(--muted);border-radius:10px}
+ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.btn{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btns{display:flex;flex-direction:column;gap:8px}
+.back{display:inline-flex;align-items:center;height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);text-decoration:none;color:var(--text);font-size:14px;font-weight:700;background:var(--surface)}
+.hero{padding:24px;display:flex;flex-wrap:wrap;gap:24px 40px;align-items:center}
+.hero .who{display:flex;align-items:center;gap:20px;flex:1 1 520px}
+.kv{margin:0;display:grid;grid-template-columns:repeat(3,minmax(96px,1fr));gap:14px 24px;flex:1 1 380px}
+.kv dt{font-size:12px;color:var(--sub)} .kv dd{margin:2px 0 0;font-size:20px;font-weight:800}
+.trackrow{padding:14px 0;border-bottom:1px solid var(--line2);display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 20px;align-items:center}
+.trackrow:last-child{border-bottom:0}
+.track{position:relative;height:8px;border-radius:4px;background:var(--track)}
+.track .avg{position:absolute;top:-4px;width:2px;height:16px;background:var(--faint)}
+.track .pt{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--surface)}
+.range{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:6px}
+.range strong{font-size:15px;color:var(--text)}
+.note{font-size:13px;color:var(--sub);line-height:1.5}
+.box{border-radius:12px;padding:14px 16px}
+.box ul{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.7}
+.costbar{display:flex;height:14px;border-radius:7px;overflow:hidden}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin-top:10px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.flowrow{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;font-size:12px}
+.flowrow .bars{display:flex;flex-direction:column;gap:3px}
+.flowrow .bars div{display:flex;align-items:center;gap:6px}
+.flowrow .bars i{display:block;height:12px;border-radius:2px}
+.patcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.cmpgrid{display:grid;grid-template-columns:200px repeat(3,minmax(0,1fr));gap:16px}
+.band{background:var(--band);color:var(--band-text);border-radius:16px;padding:22px 24px}
+.cmprow{padding:14px 0;border-bottom:1px solid var(--line2);row-gap:8px}
+.cmprow .explain{grid-column:2 / span 3;font-size:13px;color:var(--text);background:var(--muted);border-radius:8px;padding:8px 12px}
+.prio{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:flex-start}
+.ranklist{flex:2 1 480px;margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ranklist li{background:var(--bg);border-radius:12px;padding:16px}
+.ranklist li.first{outline:2px solid var(--accent)}
+.s-na{background:var(--muted);color:var(--sub)}
+.banner{background:var(--warn-bg);color:var(--warn-fg);border-radius:10px;padding:10px 14px;font-size:13px}
+.empty{padding:40px 20px;text-align:center;color:var(--sub)}
+.sitefoot{border-top:1px solid var(--line);padding:18px 0 28px;font-size:12px;color:var(--sub)}
+@media (max-width:760px){
+  .grid3{grid-template-columns:1fr}
+  .tools{margin-left:0;width:100%}
+  .input{width:100%}
+  .field{flex:1 1 100%}
+  .field .select,.field .input{flex:1}
+  .trackrow{grid-template-columns:1fr}
+  .ranklist{grid-template-columns:1fr}
+  .kv{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){
+  .dot,.chip,.btn{transition:background-color .15s,box-shadow .15s}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#list">가맹저울</a>
+    <div class="chips" id="chips" role="group" aria-label="업종 선택"></div>
+    <label class="field" id="moreWrap" hidden><span class="sr">다른 업종</span><select id="sectorMore" class="select"></select></label>
+    <div class="tools">
+      <label class="field"><span class="sr">브랜드 검색</span><input id="q" class="input" type="search" placeholder="브랜드명으로 찾기"></label>
+      <label class="field">예산 <select id="budget" class="select"></select></label>
+      <label class="field">정렬 <select id="sort" class="select">
+        <option value="score">진단 점수 높은 순</option>
+        <option value="sales">연 평균매출 높은 순</option>
+        <option value="cost">초기비용 낮은 순</option>
+        <option value="close">폐점률 낮은 순</option>
+      </select></label>
+    </div>
+  </div>
+</header>
+<main><div class="wrap" id="app"></div></main>
+<footer class="sitefoot"><div class="wrap" id="footnote">화면의 브랜드와 수치는 화면 예시용 가상 데이터입니다. 실제 서비스는 공정거래위원회 가맹사업 정보(공공데이터포털 API)를 서버에서 수집해 같은 방식으로 분석합니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.</div></footer>
+
+<script>
+(function(){
+'use strict';
+// ── 예시 데이터: data.json 이 없을 때만 사용합니다 (만 원 단위)
+const SAMPLE = {
+  '치킨': [
+    {id:'bs', name:'바삭치킨', parts:[1000,300,500,4100,1950], sales:38200, stores:1240, direct:12, age:18, close:4.1, growth:6.2, transfer:2.0, viol:0, flow:[[140,40],[132,43],[118,46],[121,48]]},
+    {id:'sb', name:'숯불명가', parts:[1100,300,500,4800,2700], sales:41800, stores:320, direct:5, age:6, close:3.2, growth:11.4, transfer:2.6, viol:0, flow:[[58,10],[66,13],[82,16],[45,12]]},
+    {id:'dn', name:'동네치킨집', parts:[700,200,300,2900,1500], sales:26700, stores:230, direct:2, age:7, close:5.2, growth:8.1, transfer:2.4, viol:0, flow:[[30,8],[34,10],[28,10],[30,13]]},
+    {id:'hg', name:'황금날개', parts:[1000,300,500,4300,2000], sales:33900, stores:950, direct:8, age:14, close:6.0, growth:2.9, transfer:3.4, viol:1, flow:[[70,45],[64,48],[60,52],[85,58]]},
+    {id:'gs', name:'고소한닭', parts:[800,250,400,3200,1550], sales:29500, stores:680, direct:3, age:9, close:7.8, growth:1.5, transfer:4.9, viol:0, flow:[[60,40],[55,44],[52,48],[60,50]]},
+    {id:'gb', name:'치킨공방', parts:[600,200,300,2500,1300], sales:21300, stores:410, direct:0, age:4, close:13.5, growth:-4.8, transfer:3.8, viol:0, flow:[[120,20],[90,48],[40,62],[35,56]]}
+  ],
+  '카페': [
+    {id:'lh', name:'라떼하우스', parts:[1200,300,500,6200,3300], sales:32400, stores:860, direct:15, age:15, close:5.0, growth:3.1, transfer:2.8, viol:0, flow:[[110,45],[102,48],[95,50],[90,52]]},
+    {id:'bn', name:'빈스토리', parts:[900,250,500,4600,2250], sales:27600, stores:410, direct:4, age:8, close:6.8, growth:7.5, transfer:3.1, viol:0, flow:[[40,15],[48,18],[55,22],[52,24]]},
+    {id:'mb', name:'모닝브루', parts:[500,200,300,3000,1500], sales:18900, stores:290, direct:1, age:5, close:11.2, growth:0.8, transfer:5.6, viol:1, flow:[[60,20],[50,32],[38,40],[42,40]]},
+    {id:'co', name:'카페온도', parts:[1000,300,500,5100,2600], sales:30800, stores:520, direct:9, age:11, close:4.3, growth:5.4, transfer:2.2, viol:0, flow:[[45,20],[50,22],[52,24],[50,22]]}
+  ]
+};
+let DATA = SAMPLE, INDUSTRY = {}, META = {sample:true}, SECTORS = [];
+const BUDGETS = [['전체',Infinity],['5천만 원 이하',5000],['7천만 원 이하',7000],['1억 원 이하',10000],['1억 5천만 원 이하',15000]];
+const PART_NAMES = ['가맹금','교육비','보증금','인테리어','기타'];
+const PAT_NAMES = ['개점·해지 동시 급증','성장 둔화','양도(명의변경) 증가'];
+const NA = '정보 없음';
+
+const state = {sector:null, budget:0, sort:'score', q:'', sel:null, cmp:null, prio:0, margin:8};
+
+// ── 유틸 (값이 없을 수 있다는 전제로 작성)
+const ok = v => v !== null && v !== undefined && typeof v === 'number' && !Number.isNaN(v);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const won = v => { if (!ok(v)) return NA; v = Math.round(v); const e = Math.floor(v/10000), m = v % 10000; return e ? e + '억' + (m ? ' ' + m.toLocaleString('ko-KR') : '') : m.toLocaleString('ko-KR'); };
+const wonM = v => ok(v) ? won(v) + '만' : NA;
+const pctS = v => ok(v) ? (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1) + '%' : NA;
+const pct = v => ok(v) ? v.toFixed(1) + '%' : NA;
+const sum = a => a.reduce((x,y)=>x+y,0);
+const good = a => a.filter(ok);
+const meanN = a => { const g = good(a); return g.length ? sum(g)/g.length : null; };
+const avgOf = (...a) => meanN(a);
+function normN(v, arr, higher){ if (!ok(v)) return 0.5; const g = good(arr); const mn = Math.min(...g), mx = Math.max(...g); if (mx === mn) return 0.5; const n = (v-mn)/(mx-mn); return higher ? n : 1-n; }
+function posOf(v, arr){ const g = good(arr); if (!ok(v) || !g.length) return null; const mn = Math.min(...g), mx = Math.max(...g); return mx === mn ? 50 : (v-mn)/(mx-mn)*100; }
+function rankOf(b, L, f){ if (!ok(f(b))) return null; const s = L.filter(x=>ok(f(x))).sort((x,y)=>f(y)-f(x)); return s.indexOf(b) + 1; }
+const payback = (b, m) => ok(b.cost) && ok(b.sales) && b.sales > 0 ? Math.round(b.cost / (b.sales * m / 100 / 12)) : null;
+const months = v => ok(v) ? v + '개월' : NA;
+
+// ── 분석 엔진
+const cache = {};
+function analyze(sector){
+  if (cache[sector]) return cache[sector];
+  const raw = DATA[sector]; if (!raw || !raw.length) return null;
+  const L = raw.map(b => {
+    const cost = Array.isArray(b.parts) && b.parts.length === 5 && b.parts.every(ok) ? sum(b.parts) : (ok(b.cost) ? b.cost : null);
+    return {...b, parts: cost !== null && Array.isArray(b.parts) ? b.parts : null, cost, flow: Array.isArray(b.flow) ? b.flow : []};
+  });
+  L.forEach(b => b.eff = ok(b.cost) && b.cost > 0 && ok(b.sales) ? b.sales / b.cost : null);
+  const col = k => L.map(b => b[k]);
+  const A = {}; ['sales','cost','eff','close','growth','transfer','age','direct','stores'].forEach(k => A[k] = meanN(col(k)));
+  A.closeSrc = '분석 브랜드 평균';
+  const I = INDUSTRY[sector];
+  if (I && ok(I.closeRate)) { A.close = I.closeRate; A.closeSrc = '공정위 업종 통계' + (I.year ? ' ' + I.year + '년' : ''); }
+  L.forEach(b => {
+    b.ax = {
+      profit: normN(b.sales, col('sales'), true),
+      eff: normN(b.eff, col('eff'), true),
+      stab: avgOf(normN(b.close, col('close'), false), normN(b.transfer, col('transfer'), false)),
+      growth: normN(b.growth, col('growth'), true),
+      hq: avgOf(normN(b.age, col('age'), true), normN(b.direct, col('direct'), true), ok(b.viol) ? (b.viol ? 0 : 1) : 0.5)
+    };
+    b.score = Math.round(100 * (0.3*b.ax.profit + 0.2*b.ax.eff + 0.3*b.ax.stab + 0.2*b.ax.hq));
+    b.grade = b.score >= 80 ? 'A' : b.score >= 65 ? 'B' : b.score >= 45 ? 'C' : 'D';
+    b.missing = [['초기비용',b.cost],['직영점',b.direct],['업력',b.age],['법 위반 이력',b.viol],['폐점률',b.close],['순증가율',b.growth],['명의변경률',b.transfer]].filter(x=>!ok(x[1])).map(x=>x[0]);
+  });
+  L.forEach(b => {
+    b.rk = { sales: rankOf(b, L, x=>x.sales), eff: rankOf(b, L, x=>x.eff), stab: rankOf(b, L, x=>x.ax.stab), growth: rankOf(b, L, x=>x.growth) };
+    b.overall = rankOf(b, L, x=>x.score);
+    b.patterns = detectPatterns(b, A);
+    const hits = b.patterns.filter(p=>p.status==='해당').length;
+    const cl = ok(b.close) && ok(A.close);
+    b.risk = ((cl && b.close > 2*A.close) || (ok(b.growth) && b.growth < 0) || hits >= 2) ? '위험'
+           : ((cl && b.close > A.close) || (ok(b.viol) && b.viol > 0) || hits >= 1 || (ok(b.transfer) && ok(A.transfer) && b.transfer > A.transfer*1.3)) ? '주의' : '양호';
+    explain(b, A, L);
+  });
+  const res = {list: L, avg: A, insights: industryInsights(L, A, sector), sector};
+  cache[sector] = res;
+  return res;
+}
+
+function detectPatterns(b, A){
+  const f = b.flow, n = f.length;
+  const lack = {status:'정보 부족', desc:'판단에 필요한 연도별 데이터가 부족해요.'};
+  const out = [];
+  if (n < 2) { out.push(lack, lack); }
+  else {
+    const o0 = f[0][0], oL = f[n-1][0], c0 = f[0][1], cL = f[n-1][1];
+    let p1 = {status:'해당 없음', desc:'개점과 해지가 함께 급증한 해가 없어요.'};
+    if (c0 > 0 && cL >= 2*c0 && cL > oL) p1 = {status:'해당', desc:'초기 성장 뒤 해지가 ' + (cL/c0).toFixed(1) + '배로 늘었어요.'};
+    else for (let i = 1; i < n; i++){
+      if (!f[i-1][0] || !f[i-1][1]) continue;
+      const og = f[i][0]/f[i-1][0]-1, cg = f[i][1]/f[i-1][1]-1;
+      if (og >= 0.3 && cg >= 0.2){ p1 = {status:'해당', desc:'최근 ' + (n-i) + '년 전 개점과 해지가 함께 크게 늘었어요.'}; break; }
+      if (og >= 0.15 && cg >= 0.1 && p1.status === '해당 없음') p1 = {status:'주의', desc:'개점(+' + Math.round(og*100) + '%)과 해지(+' + Math.round(cg*100) + '%)가 함께 늘어난 해가 있어요.'};
+    }
+    out.push(p1);
+    const drop = o0 ? 1 - oL/o0 : 0, lastDrop = f[n-2][0] ? 1 - oL/f[n-2][0] : 0;
+    let p2 = {status:'해당 없음', desc:'신규 개점이 꾸준히 유지되고 있어요.'};
+    if (oL < cL) p2 = {status:'해당', desc:'최근 연도에 폐점(' + cL + '곳)이 개점(' + oL + '곳)보다 많았어요.'};
+    else if (drop >= 0.4) p2 = {status:'해당', desc:'신규 개점이 ' + n + '년 새 ' + Math.round(drop*100) + '% 줄었어요.'};
+    else if (lastDrop >= 0.3) p2 = {status:'주의', desc:'최근 신규 개점이 전년보다 ' + Math.round(lastDrop*100) + '% 줄었어요.'};
+    else if (drop >= 0.1) p2 = {status:'주의', desc:'신규 개점이 ' + o0 + '곳에서 ' + oL + '곳으로 ' + Math.round(drop*100) + '% 줄었어요.'};
+    out.push(p2);
+  }
+  let p3 = lack;
+  if (ok(b.transfer) && ok(A.transfer)){
+    p3 = {status:'해당 없음', desc:'명의변경률 ' + b.transfer.toFixed(1) + '%로 업종 평균(' + A.transfer.toFixed(1) + '%) 이하예요.'};
+    if (b.transfer > A.transfer*1.3) p3 = {status:'해당', desc:'명의변경률 ' + b.transfer.toFixed(1) + '%로 업종 평균(' + A.transfer.toFixed(1) + '%)보다 크게 높아요.'};
+    else if (b.transfer > A.transfer) p3 = {status:'주의', desc:'명의변경률 ' + b.transfer.toFixed(1) + '%로 업종 평균보다 조금 높아요.'};
+  }
+  out.push(p3);
+  return out.map((p,i)=>({...p, name: PAT_NAMES[i]}));
+}
+
+function explain(b, A, L){
+  const S = [], W = [];
+  if (ok(b.rk.eff) && b.rk.eff <= 2) S.push('비용 대비 매출 업종 ' + b.rk.eff + '위 (' + b.eff.toFixed(1) + '배)');
+  if (ok(b.rk.sales) && b.rk.sales <= 2) S.push('연 평균매출 업종 ' + b.rk.sales + '위');
+  if (ok(b.close) && ok(A.close) && b.close < A.close) S.push('폐점률 ' + b.close.toFixed(1) + '%로 평균보다 낮음');
+  if (ok(b.age) && ok(b.direct) && ok(A.age) && b.age >= A.age && b.direct >= 5) S.push('업력 ' + b.age + '년, 직영점 ' + b.direct + '곳');
+  if (ok(b.rk.growth) && b.rk.growth <= 2 && b.growth > 0) S.push('순증가율 ' + pctS(b.growth) + '로 성장 중');
+  if (ok(b.transfer) && ok(A.transfer) && b.transfer < A.transfer*0.8) S.push('명의변경률 ' + b.transfer.toFixed(1) + '%로 양도가 적음');
+  if (ok(b.cost) && ok(A.cost) && b.cost < A.cost*0.85) S.push('초기비용이 업종 평균보다 낮음');
+  const p = b.patterns;
+  if (ok(b.growth) && b.growth < 0) W.push({k:'shrink', s:'가맹점 감소 중', l:'가맹점 수가 줄고 있어요(' + pctS(b.growth) + ').'});
+  if (ok(b.close) && ok(A.close) && b.close > A.close) W.push({k:'close', s:'폐점률 평균 이상', l:'폐점률이 ' + b.close.toFixed(1) + '%로 업종 평균(' + A.close.toFixed(1) + '%)보다 높아요.'});
+  if (b.direct === 0) W.push({k:'direct', s:'직영점 없음', l:'직영점 없이 가맹점만 운영하고 있어요.'});
+  if (ok(b.viol) && b.viol > 0) W.push({k:'viol', s:'법 위반 이력 ' + b.viol + '건', l:'정보공개서에 법 위반 이력이 ' + b.viol + '건 기재되어 있어요.'});
+  if (p[2].status === '해당' || p[2].status === '주의') W.push({k:'transfer', s:'양도 비율 높음', l:'명의변경률이 업종 평균보다 높아 가게를 넘기는 점주가 많은 편이에요.'});
+  if (p[0].status === '해당') W.push({k:'surge', s:'해지 급증 패턴', l:p[0].desc});
+  if (p[1].status === '해당' || p[1].status === '주의') W.push({k:'slow', s:'신규 개점 감소', l:p[1].desc});
+  if (ok(b.age) && b.age <= 6) W.push({k:'young', s:'업력이 짧음', l:'본부 업력이 ' + b.age + '년으로 짧은 편이에요.'});
+  if (b.stores >= 1000) W.push({k:'dense', s:'상권 중복 가능', l:'가맹점이 ' + b.stores.toLocaleString('ko-KR') + '곳이라 희망 지역에 같은 브랜드가 있을 수 있어요.'});
+  if (ok(b.cost) && ok(A.cost) && b.cost > A.cost*1.2) W.push({k:'cost', s:'초기비용 높음', l:'초기비용이 업종 평균보다 ' + won(b.cost - A.cost) + '만 원 높아요.'});
+  if (b.missing.length) W.push({k:'missing', s:'일부 정보 없음', l:b.missing.join(', ') + ' 정보가 확인되지 않아 점수에서 중간값으로 처리했어요.'});
+  b.strengths = S.length ? S : ['뚜렷한 강점 항목이 없어요'];
+  b.weak = W;
+  const firstW = W.find(w => w.k !== 'missing') || W[0];
+  b.note = (S[0] || '평균 수준') + '. ' + (firstW ? firstW.s + ' 확인 필요' : '뚜렷한 약점 없음');
+  const showW = W.filter(w => w.k !== 'missing').slice(0,2);
+  b.comment = (S.length ? '강점은 ' + S.slice(0,2).join(', ') + '입니다. ' : '') + (showW.length ? '다만 ' + showW.map(w=>w.l).join(' ') : '눈에 띄는 약점은 없어요.');
+  const QM = {
+    dense:'희망 지역 반경 1km 안 기존 가맹점 수와 영업지역 보호 범위는?',
+    close:'최근 폐점한 매장들의 주된 사유는?',
+    transfer:'명의변경된 가맹점의 주된 양도 사유는?',
+    viol:'법 위반 이력의 내용과 시정 여부는?',
+    direct:'직영점을 운영하지 않는 이유와 운영 노하우 검증 방법은?',
+    young:'본부의 재무 상태와 슈퍼바이저 1명당 담당 매장 수는?',
+    shrink:'최근 가맹점 수가 줄어든 이유는?',
+    surge:'해지가 급증한 해에 무슨 일이 있었는지?',
+    slow:'신규 개점이 줄어든 이유는?',
+    cost:'인테리어 비용의 세부 내역과 지정 업체 시공 여부는?',
+    missing:'정보공개서에서 초기비용 항목별 금액을 직접 확인해 주실 수 있는지?'
+  };
+  const Q = [];
+  W.forEach(w => { if (QM[w.k] && Q.indexOf(QM[w.k]) < 0) Q.push(QM[w.k]); });
+  ['신규 매장의 첫해 평균 매출은 전체 평균과 얼마나 다른지?','광고·판촉 비용의 본부·가맹점 분담 비율은?','원재료 공급 가격은 어떤 방식으로 조정되는지?'].forEach(q => { if (Q.length < 3) Q.push(q); });
+  b.questions = Q.slice(0,4);
+}
+
+function industryInsights(L, A, sector){
+  const out = [];
+  const P = L.filter(b=>ok(b.cost) && ok(b.sales));
+  if (P.length >= 3){
+    const mx = meanN(P.map(b=>b.cost)), my = meanN(P.map(b=>b.sales));
+    const cov = sum(P.map(b=>(b.cost-mx)*(b.sales-my)));
+    const vx = sum(P.map(b=>(b.cost-mx)**2)), vy = sum(P.map(b=>(b.sales-my)**2));
+    if (vx > 0 && vy > 0){
+      const r = cov / Math.sqrt(vx*vy), slope = cov / vx;
+      if (r >= 0.4) out.push({tag:'비용과 매출', head:'초기비용이 1천만 원 높을수록 연매출이 약 ' + won(slope*1000) + '만 원 높았어요', sub:'초기비용을 확인한 ' + P.length + '개 브랜드 기준, 상관계수 ' + r.toFixed(2) + (r >= 0.7 ? '로 관계가 뚜렷해요.' : '로 어느 정도 관계가 있어요.')});
+      else out.push({tag:'비용과 매출', head:'이 업종은 초기비용과 매출의 관계가 약해요', sub:'상관계수 ' + r.toFixed(2) + '. 비용이 높다고 매출이 높은 건 아니니 효율을 함께 보세요.'});
+    }
+  }
+  const D = L.filter(b=>ok(b.direct) && ok(b.close));
+  const lo = D.filter(b=>b.direct<=3), hi = D.filter(b=>b.direct>=4);
+  if (lo.length >= 2 && hi.length >= 2){
+    const a = meanN(lo.map(b=>b.close)), c = meanN(hi.map(b=>b.close));
+    if (c > 0) out.push({tag:'직영점과 폐점률', head:'직영점 3곳 이하 브랜드의 폐점률은 평균 ' + a.toFixed(1) + '%로, 4곳 이상(' + c.toFixed(1) + '%)의 ' + (a/c).toFixed(1) + '배였어요', sub:'본부가 직접 매장을 운영해 본 경험이 가맹점 안정성과 연결되는지 함께 살펴보세요.'});
+  }
+  const G = L.filter(b=>ok(b.growth)), up = G.filter(b=>b.growth>0), down = G.filter(b=>b.growth<=0);
+  const I = INDUSTRY[sector];
+  const isub = I && ok(I.closeRate) ? '공정위 업종 통계(' + (I.year || '') + '년) 기준 폐점률 ' + I.closeRate.toFixed(1) + '%' + (ok(I.openRate) ? ', 개점률 ' + I.openRate.toFixed(1) + '%' : '') + '.' : '';
+  if (G.length) out.push({tag:'업종 흐름', head: G.length + '개 중 ' + up.length + '개 브랜드가 지난해보다 가맹점이 늘었어요', sub: (isub ? isub + ' ' : '') + (down.length ? '줄어든 곳: ' + down.slice(0,4).map(b=>b.name).join(', ') + (down.length > 4 ? ' 외 ' + (down.length-4) + '곳' : '') + '.' : '모든 브랜드가 성장 중이에요.')});
+  return out.slice(0,3);
+}
+
+// ── 지표 정의
+const METRICS = [
+  {k:'sales', label:'연 평균매출', dir:'높을수록 유리', hb:true, fmt:v=>won(v)+'만', v:b=>b.sales},
+  {k:'cost', label:'초기비용 합계', dir:'낮을수록 부담이 적음', hb:false, fmt:v=>won(v)+'만', v:b=>b.cost},
+  {k:'eff', label:'비용 대비 매출', dir:'높을수록 효율적', hb:true, fmt:v=>v.toFixed(1)+'배', v:b=>b.eff},
+  {k:'close', label:'폐점률', dir:'낮을수록 안정적', hb:false, fmt:v=>v.toFixed(1)+'%', v:b=>b.close},
+  {k:'growth', label:'순증가율', dir:'높을수록 성장 중', hb:true, fmt:v=>pctS(v), v:b=>b.growth},
+  {k:'transfer', label:'명의변경률', dir:'낮을수록 양도가 적음', hb:false, fmt:v=>v.toFixed(1)+'%', v:b=>b.transfer},
+  {k:'age', label:'본부 업력', dir:'길수록 운영 경험 많음', hb:true, fmt:v=>Math.round(v)+'년', v:b=>b.age}
+];
+const F = (m, v) => ok(v) ? m.fmt(v) : NA;
+function goodRank(m, b, L){ return rankOf(b, L, x => ok(m.v(x)) ? (m.hb ? m.v(x) : -m.v(x)) : null); }
+function metricInsight(m, b, A, L){
+  const v = m.v(b), a = A[m.k];
+  if (!ok(v)) return '이 항목은 공개 데이터에서 확인되지 않았어요. 정보공개서 원문에서 확인해 보세요.';
+  if (!ok(a)) return '';
+  const r = goodRank(m, b, L), n = L.filter(x=>ok(m.v(x))).length;
+  if (n < 3) return '이 항목을 확인한 브랜드가 적어 업종 비교는 생략했어요.';
+  const tail = r === 1 ? ' 업종 최고 수준이에요.' : r === n ? ' 업종에서 가장 불리한 수준이에요.' : '';
+  switch(m.k){
+    case 'sales': return '업종 평균보다 ' + Math.abs(Math.round((v-a)/a*100)) + '% ' + (v >= a ? '높아요.' : '낮아요.') + tail;
+    case 'cost': return '업종 평균보다 ' + won(Math.abs(v-a)) + '만 원 ' + (v > a ? '비싸요.' : '저렴해요.') + (r === 1 ? ' 업종에서 가장 저렴해요.' : '');
+    case 'eff': return '초기비용 1만 원당 연매출이 ' + v.toFixed(1) + '만 원 수준으로 업종 ' + r + '위예요.';
+    case 'close': return '업종 평균(' + a.toFixed(1) + '%, ' + A.closeSrc + ')보다 ' + Math.abs(v-a).toFixed(1) + '%p ' + (v <= a ? '낮아 안정적인 편이에요.' : '높아 폐점 사유 확인이 필요해요.');
+    case 'growth': return v < 0 ? '가맹점이 줄고 있어요. 감소 이유를 꼭 확인하세요.' : '1년 새 가맹점이 ' + v.toFixed(1) + '% 늘었어요. 분석 브랜드 평균은 ' + a.toFixed(1) + '%예요.';
+    case 'transfer': return v <= a ? '가게를 넘기는 점주가 업종 평균보다 적어요.' : '가게를 넘기는 점주가 평균보다 많아요. 양도 사유를 확인해 보세요.';
+    case 'age': return '분석 브랜드 평균 ' + a.toFixed(0) + '년보다 ' + (v >= a ? '오래된 본부예요.' : '짧은 편이에요.');
+  }
+  return '';
+}
+
+// ── 화면 상태
+function view(){ const h = location.hash.replace('#',''); return ['report','compare'].indexOf(h) >= 0 ? h : 'list'; }
+function current(){ return analyze(state.sector); }
+function selected(){
+  const D = current(); if (!D) return null;
+  let b = D.list.find(x=>x.id===state.sel);
+  if (!b){ b = [...D.list].sort((x,y)=>y.score-x.score)[0]; state.sel = b.id; }
+  return b;
+}
+function distance(x, s){ return ok(x.cost) && ok(s.cost) ? Math.abs(x.cost-s.cost) : 1e9 + Math.abs((x.sales||0)-(s.sales||0)); }
+function defaultCompare(){
+  const D = current(), s = selected();
+  const others = D.list.filter(b=>b!==s).sort((x,y)=>distance(x,s)-distance(y,s));
+  return [s.id, (others[0]||s).id, (others[1]||others[0]||s).id];
+}
+function filtered(){
+  const D = current(); if (!D) return [];
+  const lim = BUDGETS[state.budget][1], q = state.q.trim();
+  const L = D.list.filter(b => (lim === Infinity || (ok(b.cost) && b.cost <= lim)) && (!q || b.name.indexOf(q) >= 0));
+  const key = {score:b=>-b.score, sales:b=>-(b.sales||0), cost:b=>ok(b.cost)?b.cost:1e12, close:b=>ok(b.close)?b.close:1e12}[state.sort];
+  return L.sort((x,y)=>key(x)-key(y));
+}
+const statusCls = s => s === '해당' || s === '위험' ? 's-bad' : s === '주의' ? 's-warn' : s === '정보 부족' ? 's-na' : 's-ok';
+const rankColor = (v, n) => !ok(v) ? 'var(--sub)' : v <= 2 ? 'var(--accent-strong)' : v >= n-1 ? 'var(--bad-fg)' : 'var(--text)';
+const riskColor = r => r === '양호' ? 'var(--accent)' : r === '주의' ? 'var(--warn)' : 'var(--bad)';
+const gradePill = b => '<span class="pill g-' + b.grade + '"><strong>' + b.grade + '</strong>' + b.score + '</span>';
+const banner = () => META.sample ? '<p class="banner">지금은 예시 데이터로 보고 있어요. 수집기로 site/data.json 을 만들면 실제 공정위 데이터로 바뀝니다.</p>' : '';
+
+// ── 렌더: 목록
+function renderList(){
+  const D = current();
+  if (!D) return '<div class="card empty"><p class="h2" style="font-size:18px">이 업종은 아직 데이터가 없어요</p><p>다른 업종을 골라 보세요.</p></div>';
+  const s = selected(), rows = filtered(), n = D.list.length;
+  const ins = D.insights.map(i => '<article class="card insight"><div class="tag">' + esc(i.tag) + '</div><div class="head">' + esc(i.head) + '</div><div class="sub">' + esc(i.sub) + '</div></article>').join('');
+  const sortCol = state.sort;
+  const tr = rows.length ? rows.map(b => '<tr class="' + (b === s ? 'on' : '') + '">' +
+    '<th scope="row" class="name"><button class="namebtn" data-act="select" data-id="' + esc(b.id) + '" aria-pressed="' + (b === s) + '"><strong>' + esc(b.name) + '</strong><span>' + esc(b.note) + '</span></button></th>' +
+    '<td style="text-align:center">' + gradePill(b) + '</td>' +
+    '<td>' + (ok(D.avg.sales) ? '<span class="' + (b.sales >= D.avg.sales ? 'up' : 'down') + '">' + pctS((b.sales-D.avg.sales)/D.avg.sales*100) + '</span>' : '') + '<div class="small">' + wonM(b.sales) + '</div></td>' +
+    '<td><strong>' + wonM(b.cost) + '</strong><div class="small">' + (ok(b.eff) ? b.eff.toFixed(1) + '배 효율' : '') + '</div></td>' +
+    '<td><span class="' + (ok(b.close) && ok(D.avg.close) && b.close > D.avg.close ? 'down' : '') + '" style="font-weight:700">' + pct(b.close) + '</span></td>' +
+    '<td style="padding-right:20px;font-weight:700">' + months(payback(b, state.margin)) + '</td></tr>').join('')
+    : '<tr><td colspan="6" class="empty">조건에 맞는 브랜드가 없어요. 예산을 늘리거나 검색어를 지워 보세요. 초기비용이 확인되지 않은 브랜드는 예산을 “전체”로 두어야 보여요.</td></tr>';
+  const th = (key, label, sub) => '<th scope="col" class="' + (sortCol === key ? 'sorted' : '') + '">' + label + (sub ? '<div style="font-weight:400">' + sub + '</div>' : '') + '</th>';
+  const P = D.list.filter(b=>ok(b.cost) && ok(b.sales));
+  const costs = P.map(b=>b.cost), sales = P.map(b=>b.sales);
+  let plot = '<p class="note">초기비용이 확인된 브랜드가 2개 이상이어야 차트를 그릴 수 있어요.</p>';
+  if (P.length >= 2){
+    const dots = P.map(b => {
+      const size = Math.round(14 + Math.min(Math.sqrt(b.stores)*0.6, 30));
+      return '<button class="dot' + (b === s ? ' on' : '') + '" data-act="select" data-id="' + esc(b.id) + '" aria-label="' + esc(b.name) + ' 선택" style="left:' + (8 + posOf(b.cost,costs)*0.84).toFixed(1) + '%;bottom:' + (10 + posOf(b.sales,sales)*0.8).toFixed(1) + '%;width:' + size + 'px;height:' + size + 'px;background:' + riskColor(b.risk) + ';opacity:' + (b === s ? 1 : .6) + '"><span>' + (b === s || P.length <= 12 ? esc(b.name) : '') + '</span></button>';
+    }).join('');
+    const avgX = (8 + posOf(meanN(costs),costs)*0.84).toFixed(1), avgY = (10 + posOf(meanN(sales),sales)*0.8).toFixed(1);
+    plot = '<div class="plot"><div class="vline" style="left:' + avgX + '%"></div><div class="hline" style="bottom:' + avgY + '%"></div><span class="q">저비용 · 고매출</span>' + dots + '</div>' +
+      '<div class="axisline"><span>초기비용 낮음</span><span>세로 매출, 크기 가맹점 수, 점선 평균</span><span>높음</span></div>';
+  }
+  const ns = { sales: D.list.filter(b=>ok(b.sales)).length, eff: D.list.filter(b=>ok(b.eff)).length };
+  const tiles = [['매출',s.rk.sales,ns.sales],['비용효율',s.rk.eff,ns.eff],['안정성',s.rk.stab,n],['성장성',s.rk.growth,n]].map(t => '<div class="tile"><div>' + t[0] + '</div><div style="color:' + rankColor(t[1], t[2]) + '">' + (ok(t[1]) ? t[1] + '위' : '–') + '</div></div>').join('');
+  const pats = s.patterns.map(p => '<div class="patline"><span>' + esc(p.name) + '</span><span class="pill ' + statusCls(p.status) + '">' + p.status + '</span></div>').join('');
+  return '<div class="stack">' + banner() +
+    '<section aria-label="업종 분석 요약"><div class="row-between" style="margin-bottom:12px"><h1 class="h2">' + esc(state.sector) + ' 업종, 데이터로 보면</h1><span class="meta">' + n + '개 브랜드 분석 (예산 필터와 무관하게 업종 전체 기준)</span></div><div class="grid3">' + ins + '</div></section>' +
+    '<div class="split">' +
+      '<section class="card main" aria-label="브랜드 분석표" style="overflow:hidden"><div class="scroll"><table style="min-width:820px"><thead><tr>' +
+        '<th scope="col" style="text-align:left;padding-left:20px">브랜드 · 한 줄 분석</th>' + th('score','진단') + th('sales','매출','업종 평균 대비') + th('cost','초기비용') + th('close','폐점률', ok(D.avg.close) ? '평균 ' + D.avg.close.toFixed(1) + '%' : '') + '<th scope="col" style="padding-right:20px">회수기간<div style="font-weight:400">이익률 ' + state.margin + '% 가정</div></th>' +
+      '</tr></thead><tbody>' + tr + '</tbody></table></div>' +
+      '<p class="foot">브랜드명을 누르면 오른쪽 진단이 바뀝니다. 진단 점수 = 수익성 30 + 비용효율 20 + 안정성 30 + 본부 신뢰도 20 (업종 내 상대평가, 모든 브랜드 동일 기준). 확인되지 않은 항목은 중간값으로 처리합니다. 폐점률 평균: ' + esc(D.avg.closeSrc) + '.</p></section>' +
+      '<aside class="card side panel" aria-label="선택한 브랜드 진단" aria-live="polite">' +
+        '<div class="gradebox"><div class="gradecircle g-' + s.grade + '"><b>' + s.grade + '</b><span>' + s.score + '점</span></div><div><div class="title-lg">' + esc(s.name) + '</div><div class="small">종합 ' + s.overall + '위, 리스크 ' + s.risk + (s.corp ? ', ' + esc(s.corp) : '') + '</div></div></div>' +
+        '<p style="margin:0;font-size:15px;line-height:1.6">' + esc(s.comment) + '</p>' +
+        '<div class="tiles">' + tiles + '</div>' +
+        '<div><div class="row-between" style="margin-bottom:8px"><span class="sec-title" style="margin:0">업종 내 위치</span><span class="small" style="font-size:12px">원을 눌러도 선택돼요</span></div>' + plot + '</div>' +
+        '<div><div class="sec-title">위험 패턴 탐지</div><div class="patterns">' + pats + '</div></div>' +
+        '<div><div class="sec-title">상담 때 꼭 물어볼 것</div><ol class="qs">' + s.questions.slice(0,3).map(q=>'<li>' + esc(q) + '</li>').join('') + '</ol></div>' +
+        '<div class="btns"><a class="btn primary" href="#report">진단 리포트 전체 보기</a><a class="btn" href="#compare" data-act="cmp-reset">비슷한 브랜드와 비교하기</a></div>' +
+      '</aside>' +
+    '</div></div>';
+}
+
+// ── 렌더: 리포트
+function trackHTML(m, b, D, color){
+  const vals = D.list.map(m.v), v = m.v(b), p = posOf(v, vals), a = posOf(D.avg[m.k], vals);
+  return '<div class="track">' + (a !== null ? '<div class="avg" style="left:' + Math.max(0, Math.min(100, a)).toFixed(1) + '%"></div>' : '') + (p !== null ? '<div class="pt" style="left:' + p.toFixed(1) + '%;background:' + color + ';box-shadow:0 0 0 1px ' + color + '"></div>' : '') + '</div>';
+}
+function renderReport(){
+  const D = current(); if (!D) return renderList();
+  const s = selected();
+  const tracks = METRICS.map(m => {
+    const vals = good(D.list.map(m.v)), n = vals.length, r = goodRank(m, s, D.list);
+    const mn = vals.length ? Math.min(...vals) : null, mx = vals.length ? Math.max(...vals) : null;
+    return '<div class="trackrow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + (ok(r) ? '업종 ' + r + '위 / ' + n : '순위 없음') + '</div></div>' +
+      '<div><div class="range"><span>' + F(m, mn) + '</span><strong>' + F(m, m.v(s)) + '</strong><span>' + F(m, mx) + '</span></div>' + trackHTML(m, s, D, 'var(--accent)') + '</div>' +
+      '<div></div><div class="note" style="color:var(--text)">' + esc(metricInsight(m, s, D.avg, D.list)) + '</div></div>';
+  }).join('');
+  const pc = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
+  let costHTML = '<p class="note" style="margin:0">초기비용 항목을 공개 데이터에서 확인하지 못했어요. 정보공개서 원문의 “가맹점사업자의 부담” 항목을 확인해 주세요.</p>';
+  if (s.parts){
+    const withParts = D.list.filter(b=>b.parts);
+    const avgInterior = meanN(withParts.map(b=>b.parts[3]));
+    costHTML = '<div class="costbar">' + s.parts.map((p,i)=>'<div style="width:' + (s.cost ? p/s.cost*100 : 0).toFixed(1) + '%;background:' + pc[i] + '"></div>').join('') + '</div>' +
+      '<div class="legend">' + s.parts.map((p,i)=>'<span><i style="background:' + pc[i] + '"></i>' + PART_NAMES[i] + ' ' + won(p) + '</span>').join('') + '</div>' +
+      (s.cost ? '<p class="note" style="margin:10px 0 0">인테리어가 ' + Math.round(s.parts[3]/s.cost*100) + '%를 차지해요. 분석 브랜드 평균 인테리어 비용(약 ' + won(avgInterior) + '만 원)보다 ' + (s.parts[3] >= avgInterior ? '높아요.' : '낮아요.') + '</p>' : '');
+  }
+  let flowHTML = '<p class="note">연도별 개점·폐점 데이터가 없어요.</p>', flowNote = '';
+  if (s.flow.length){
+    const maxFlow = Math.max(1, ...s.flow.flat());
+    const ly = s.year || null;
+    flowHTML = s.flow.map((f,i)=>'<div class="flowrow"><span class="small">' + (ly ? ly - (s.flow.length-1-i) : (i+1) + '년차') + '</span><div class="bars"><div><i style="width:' + Math.max(2, f[0]/maxFlow*85).toFixed(1) + '%;background:var(--accent)"></i><span>' + f[0] + '</span></div><div><i style="width:' + Math.max(2, f[1]/maxFlow*85).toFixed(1) + '%;background:var(--warn)"></i><span>' + f[1] + '</span></div></div></div>').join('');
+    const oSum = sum(s.flow.map(f=>f[0])), cSum = sum(s.flow.map(f=>f[1]));
+    flowNote = cSum === 0 ? '기간 중 폐점이 없었어요.' : oSum > cSum ? s.flow.length + '년간 개점이 폐점의 약 ' + (oSum/cSum).toFixed(1) + '배였어요.' + (s.flow.length > 1 && s.flow[s.flow.length-1][1] > s.flow[0][1] ? ' 다만 폐점 수는 늘어나는 추세예요.' : '') : s.flow.length + '년간 폐점이 개점보다 많아 가맹점이 줄고 있어요.';
+  }
+  const pats = s.patterns.map(p => '<div class="patcard"><div class="row-between" style="align-items:center"><span style="font-size:14px;font-weight:700">' + esc(p.name) + '</span><span class="pill ' + statusCls(p.status) + '">' + p.status + '</span></div><div class="note" style="margin-top:4px">' + esc(p.desc) + '</div></div>').join('');
+  const sim = D.list.filter(b=>b!==s).sort((x,y)=>distance(x,s)-distance(y,s)).slice(0,2);
+  const diff = (a, b) => ok(a) && ok(b) ? (a-b >= 0 ? '+' : '−') + won(Math.abs(a-b)) + '만' : NA;
+  const simHTML = sim.map(b => '<button class="btn" data-act="select" data-id="' + esc(b.id) + '" style="min-height:44px;border-radius:22px;background:var(--bg);font-weight:400;gap:10px"><strong>' + esc(b.name) + '</strong><span class="small">매출 ' + diff(b.sales, s.sales) + ', 비용 ' + diff(b.cost, s.cost) + '</span></button>').join('');
+  const weak = s.weak.length ? s.weak.slice(0,4).map(w=>'<li>' + esc(w.l) + '</li>').join('') : '<li>눈에 띄는 약점이 없어요.</li>';
+  return '<div class="stack">' + banner() +
+    '<div><a class="back" href="#list">전체 목록으로</a></div>' +
+    '<section class="card hero" aria-label="종합 진단"><div class="who"><div class="gradecircle big g-' + s.grade + '"><b>' + s.grade + '</b><span>' + s.score + '점, ' + s.overall + '위</span></div><div><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h1 style="margin:0;font-size:30px;font-weight:800">' + esc(s.name) + '</h1><span class="pill ' + statusCls(s.risk) + '">리스크 ' + s.risk + '</span></div>' + (s.corp ? '<div class="small">' + esc(s.corp) + (s.year ? ', ' + s.year + '년 기준' : '') + '</div>' : '') + '<p style="margin:6px 0 0;font-size:15px;line-height:1.65;color:var(--sub)">' + esc(s.comment) + '</p></div></div>' +
+      '<dl class="kv"><div><dt>초기비용</dt><dd>' + wonM(s.cost) + '</dd></div><div><dt>연 평균매출</dt><dd>' + wonM(s.sales) + '</dd></div><div><dt>추정 회수기간</dt><dd>' + months(payback(s, state.margin)) + '</dd></div><div><dt>가맹점</dt><dd>' + s.stores.toLocaleString('ko-KR') + '곳</dd></div><div><dt>폐점률</dt><dd>' + pct(s.close) + '</dd></div><div><dt>직영점</dt><dd>' + (ok(s.direct) ? s.direct + '곳' : NA) + '</dd></div></dl></section>' +
+    '<div class="split">' +
+      '<section class="card main" style="padding:24px" aria-label="항목별 업종 내 위치와 해석"><h2 style="margin:0;font-size:17px;font-weight:800">항목별 업종 내 위치와 해석</h2><div class="small" style="margin:4px 0 8px">막대는 업종 최저~최고, 세로선은 업종 평균</div>' + tracks + '</section>' +
+      '<div class="side stack">' +
+        '<section class="card" style="padding:22px;display:flex;flex-direction:column;gap:12px" aria-label="강점과 확인할 점"><div class="box" style="background:var(--accent-soft)"><div style="font-size:14px;font-weight:700;color:var(--accent-strong)">강점</div><ul>' + s.strengths.slice(0,3).map(t=>'<li>' + esc(t) + '</li>').join('') + '</ul></div><div class="box" style="background:var(--strong-bg)"><div style="font-size:14px;font-weight:700;color:var(--warn-fg)">확인할 점</div><ul>' + weak + '</ul></div></section>' +
+        '<section class="card" style="padding:22px" aria-label="초기비용 구성"><div class="sec-title" style="font-size:15px;font-weight:800">초기비용 구성 <span style="font-weight:400;color:var(--sub)">' + (ok(s.cost) ? '합계 ' + won(s.cost) + '만 원' : '') + '</span></div>' + costHTML + '</section>' +
+      '</div>' +
+    '</div>' +
+    '<div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">' +
+      '<section class="card" style="padding:22px" aria-label="개점과 폐점 흐름"><div style="font-size:16px;font-weight:800">개점과 폐점 흐름</div><div class="small" style="display:flex;gap:14px;margin:6px 0 14px;font-size:12px"><span><i style="display:inline-block;width:10px;height:10px;background:var(--accent);margin-right:6px"></i>신규 개점</span><span><i style="display:inline-block;width:10px;height:10px;background:var(--warn);margin-right:6px"></i>종료·해지</span></div><div class="stack" style="gap:12px">' + flowHTML + '</div>' + (flowNote ? '<p class="note" style="margin:14px 0 0;color:var(--text)">' + esc(flowNote) + '</p>' : '') + '</section>' +
+      '<section class="card" style="padding:22px" aria-label="위험 패턴 상세"><div style="font-size:16px;font-weight:800">위험 패턴 상세</div><div class="small" style="margin:4px 0 14px">연도별 데이터에서 자동으로 찾은 신호와 근거</div><div class="stack" style="gap:10px">' + pats + '</div></section>' +
+    '</div>' +
+    '<section class="card" style="padding:18px 24px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center" aria-label="비슷한 가격대 브랜드"><span style="font-size:15px;font-weight:800">비슷한 가격대 브랜드</span>' + simHTML + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-left:auto"><a class="btn primary" href="#compare" data-act="cmp-reset" style="min-height:44px">세 브랜드 나란히 비교</a><a class="btn" href="https://franchise.ftc.go.kr" target="_blank" rel="noopener" style="min-height:44px">정보공개서 원문 찾기</a></div></section>' +
+  '</div>';
+}
+
+// ── 렌더: 비교
+const FIT = {profit:'높은 매출을 원한다면', eff:'투자 효율을 중시한다면', stab:'안정적인 운영을 원한다면', growth:'성장하는 브랜드를 원한다면', hq:'탄탄한 본부를 원한다면'};
+const PRIOS = [
+  {label:'안정성 우선', w:b=>.5*b.ax.stab + .3*b.ax.hq + .1*b.ax.profit + .1*b.ax.eff, why:b=>'폐점률 ' + pct(b.close) + ', 업력 ' + (ok(b.age) ? b.age + '년' : NA) + ', 직영점 ' + (ok(b.direct) ? b.direct + '곳' : NA)},
+  {label:'수익 우선', w:b=>.5*b.ax.profit + .2*b.ax.growth + .2*b.ax.eff + .1*b.ax.stab, why:b=>'연매출 ' + wonM(b.sales) + ', 순증가율 ' + pctS(b.growth)},
+  {label:'초기비용 우선', w:(b,set)=>.6*normN(b.cost, set.map(x=>x.cost), false) + .4*b.ax.stab, why:b=>'초기비용 ' + wonM(b.cost) + ', 회수 약 ' + months(payback(b, state.margin))}
+];
+function renderCompare(){
+  const D = current(); if (!D) return renderList();
+  if (D.list.length < 2) return renderList();
+  if (!state.cmp || state.cmp.some(id => !D.list.find(b=>b.id===id))) state.cmp = defaultCompare();
+  const set = state.cmp.map(id => D.list.find(b=>b.id===id));
+  const colors = ['var(--accent)','#0F9F8F','#D9622B'];
+  const selects = set.map((b,i) => '<label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--sub)">' + (i === 0 ? '기준 브랜드' : '비교 브랜드 ' + (i+1)) +
+    '<select class="select" data-act="cmp-pick" data-slot="' + i + '" style="height:48px;border-top:4px solid ' + colors[i] + ';font-weight:700;background:var(--surface)">' +
+    D.list.map(x => '<option value="' + esc(x.id) + '"' + (x === b ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>').join('');
+  const concl = set.map(b => { const top = Object.keys(b.ax).sort((x,y)=>b.ax[y]-b.ax[x])[0];
+    return '<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:30px;font-weight:800">' + b.grade + '</span><span style="font-size:14px;color:var(--band-sub)">' + b.score + '점</span></div><div style="font-size:15px;font-weight:700;color:var(--band-sub)">' + FIT[top] + '</div><div style="font-size:14px;color:var(--band-body);line-height:1.5">' + esc(b.note) + '</div></div>'; }).join('');
+  const rows = METRICS.map(m => {
+    const idx = set.map((b,i)=>i).filter(i => ok(m.v(set[i])));
+    let bi = -1, wi = -1;
+    if (idx.length){
+      const g = i => m.hb ? m.v(set[i]) : -m.v(set[i]);
+      bi = idx.reduce((p,i)=>g(i) > g(p) ? i : p, idx[0]);
+      wi = idx.reduce((p,i)=>g(i) < g(p) ? i : p, idx[0]);
+    }
+    const better = ok(D.avg[m.k]) ? set.filter(b => ok(m.v(b)) && (m.hb ? m.v(b) >= D.avg[m.k] : m.v(b) <= D.avg[m.k])).length : null;
+    const cells = set.map((b,i) => '<div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:17px;font-weight:' + (i === bi && bi !== wi ? 800 : 500) + '">' + F(m, m.v(b)) + (i === bi && bi !== wi ? ' <span class="pill s-ok" style="font-size:11px">가장 유리</span>' : '') + '</span>' + trackHTML(m, b, D, colors[i]) + '</div>').join('');
+    const text = idx.length < 2 ? '비교할 수 있는 값이 부족해요.' : bi === wi ? '세 곳이 같은 수준이에요.' : '가장 유리한 곳은 ' + set[bi].name + '(' + F(m, m.v(set[bi])) + '), 가장 불리한 곳은 ' + set[wi].name + '(' + F(m, m.v(set[wi])) + ')이에요.' + (better !== null ? ' 세 곳 중 ' + better + '곳이 업종 평균보다 유리해요.' : '');
+    return '<div class="cmpgrid cmprow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + m.dir + '</div></div>' + cells + '<div class="explain">' + esc(text) + '</div></div>';
+  }).join('');
+  const patRow = '<div class="cmpgrid cmprow"><div style="font-size:15px;font-weight:700">위험 패턴</div>' + set.map(b => { const f = b.patterns.filter(p=>p.status==='해당' || p.status==='주의'); return '<div style="display:flex;flex-wrap:wrap;gap:6px">' + (f.length ? f.map(p=>'<span class="pill ' + statusCls(p.status) + '">' + esc(p.name) + '</span>').join('') : '<span class="pill s-ok">패턴 없음</span>') + '</div>'; }).join('') + '</div>';
+  const P = PRIOS[state.prio];
+  const ranked = set.filter((b,i,a)=>a.indexOf(b)===i).sort((x,y)=>P.w(y,set)-P.w(x,set));
+  const prioBtns = PRIOS.map((p,i)=>'<button class="chip" data-act="prio" data-i="' + i + '" aria-pressed="' + (i === state.prio) + '">' + p.label + '</button>').join('');
+  const rankHTML = ranked.map((b,i)=>'<li class="' + (i === 0 ? 'first' : '') + '"><div style="font-size:13px;font-weight:700;color:' + (i === 0 ? 'var(--accent)' : 'var(--sub)') + '">' + (i+1) + '위</div><div style="font-size:18px;font-weight:800;margin-top:2px">' + esc(b.name) + '</div><div class="small" style="margin-top:4px">' + esc(P.why(b)) + '</div><div style="margin-top:8px;font-size:13px">추정 회수 <strong>' + months(payback(b, state.margin)) + '</strong></div></li>').join('');
+  return '<div class="stack">' + banner() +
+    '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="back" href="#list">전체 목록으로</a><a class="back" href="#report">진단 리포트</a><span class="small">기준 브랜드와 초기비용이 비슷한 브랜드를 자동으로 골랐어요. 바꾸려면 이름을 눌러 고르세요.</span></div>' +
+    '<div class="scroll"><div style="min-width:860px" class="stack">' +
+      '<div class="cmpgrid" style="align-items:end"><h1 style="margin:0;font-size:20px;font-weight:800">나란히 비교</h1>' + selects + '</div>' +
+      '<section class="band cmpgrid" aria-label="비교 결론"><div><div style="font-size:13px;color:var(--band-sub);font-weight:700">분석 결론</div><div style="font-size:18px;font-weight:800;margin-top:4px;line-height:1.4">무엇을 중시하느냐에 따라 답이 달라요</div></div>' + concl + '</section>' +
+      '<section aria-label="항목별 비교와 해석" style="border-top:2px solid var(--text)">' + rows + patRow + '<p class="small" style="margin:12px 0 0">막대는 업종 ' + D.list.length + '개 브랜드의 최저~최고 범위, 세로선은 업종 평균입니다.</p></section>' +
+    '</div></div>' +
+    '<section class="prio" aria-label="우선순위별 다시 보기"><div style="flex:1 1 320px"><h2 style="margin:0;font-size:18px;font-weight:800">내 우선순위로 다시 보기</h2><div class="small" style="margin-top:4px">기준을 누르면 순위가 다시 계산돼요</div><div class="chips" style="margin-top:14px">' + prioBtns + '</div>' +
+      '<label style="display:block;margin-top:18px;font-size:14px;color:var(--sub)">예상 영업이익률 <strong style="color:var(--text);font-size:16px">' + state.margin + '%</strong><input type="range" min="4" max="20" step="1" value="' + state.margin + '" data-act="margin" style="width:100%;accent-color:var(--accent);margin-top:6px"></label><div class="small" style="font-size:12px">회수기간 = 초기비용 ÷ (연매출 × 이익률 ÷ 12)</div></div>' +
+      '<ol class="ranklist">' + rankHTML + '</ol></section>' +
+  '</div>';
+}
+
+// ── 공통
+const app = document.getElementById('app');
+function renderHeader(){
+  const top = SECTORS.slice(0, 6);
+  if (top.indexOf(state.sector) < 0 && SECTORS.indexOf(state.sector) >= 0) top[top.length-1] = state.sector;
+  document.getElementById('chips').innerHTML = top.map(s => '<button class="chip" data-act="sector" data-s="' + esc(s) + '" aria-pressed="' + (s === state.sector) + '">' + esc(s) + '</button>').join('');
+  const more = document.getElementById('moreWrap');
+  if (SECTORS.length > 6){
+    more.hidden = false;
+    document.getElementById('sectorMore').innerHTML = '<option value="">다른 업종 (' + SECTORS.length + ')</option>' + SECTORS.map(s => '<option value="' + esc(s) + '">' + esc(s) + ' (' + DATA[s].length + ')</option>').join('');
+  } else more.hidden = true;
+  document.getElementById('budget').innerHTML = BUDGETS.map((b,i)=>'<option value="' + i + '"' + (i === state.budget ? ' selected' : '') + '>' + b[0] + '</option>').join('');
+  document.getElementById('sort').value = state.sort;
+  document.getElementById('footnote').textContent = META.sample
+    ? '화면의 브랜드와 수치는 예시용 가상 데이터입니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.'
+    : '출처: ' + (META.source || '공정거래위원회 가맹사업 정보') + ', ' + (META.latestYear ? META.latestYear + '년 기준, ' : '') + (META.generatedAt ? META.generatedAt + ' 수집. ' : '') + '정보공개서 본문에서 자동 추출한 항목(초기비용·직영점·업력·법 위반)은 오차가 있을 수 있어 원문 확인이 필요합니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.';
+}
+function setSector(s){ state.sector = s; state.sel = null; state.cmp = null; savePrefs(); renderHeader(); if (view() !== 'list') location.hash = 'list'; render(); }
+function render(){
+  const v = view();
+  app.innerHTML = v === 'report' ? renderReport() : v === 'compare' ? renderCompare() : renderList();
+  const s = current() ? selected() : null;
+  document.title = (v === 'report' && s ? s.name + ' 진단 리포트' : v === 'compare' ? '나란히 비교' : '가맹저울') + ' · 프랜차이즈 가맹 비교';
+}
+function savePrefs(){ try { localStorage.setItem('gj-prefs', JSON.stringify({sector:state.sector, budget:state.budget, sort:state.sort})); } catch(e) {} }
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const a = t.dataset.act;
+  if (a === 'sector') setSector(t.dataset.s);
+  else if (a === 'select'){ state.sel = t.dataset.id; state.cmp = null; render(); }
+  else if (a === 'cmp-reset'){ state.cmp = null; }
+  else if (a === 'prio'){ state.prio = +t.dataset.i; render(); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'budget'){ state.budget = +t.value; savePrefs(); render(); }
+  else if (t.id === 'sort'){ state.sort = t.value; savePrefs(); render(); }
+  else if (t.id === 'sectorMore'){ if (t.value) setSector(t.value); }
+  else if (t.dataset && t.dataset.act === 'cmp-pick'){ const i = +t.dataset.slot; state.cmp[i] = t.value; if (i === 0) state.sel = t.value; render(); }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q'){ state.q = t.value; if (view() !== 'list') location.hash = 'list'; else render(); }
+  else if (t.dataset && t.dataset.act === 'margin'){ state.margin = +t.value; const y = window.scrollY; render(); window.scrollTo(0, y); const r = app.querySelector('[data-act="margin"]'); if (r) r.focus(); }
+});
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+
+async function boot(){
+  try {
+    const r = await fetch('data.json', {cache:'no-store'});
+    if (r.ok){
+      const j = await r.json();
+      if (j && j.sectors && Object.keys(j.sectors).length){ DATA = j.sectors; INDUSTRY = j.industry || {}; META = Object.assign({}, j.meta, {sample:false}); }
+    }
+  } catch(e) { /* data.json 이 없으면 예시 데이터로 표시 */ }
+  SECTORS = Object.keys(DATA).sort((a,b)=>DATA[b].length - DATA[a].length);
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('gj-prefs') || 'null'); } catch(e) {}
+  state.sector = saved && DATA[saved.sector] ? saved.sector : SECTORS[0];
+  if (saved){ state.budget = saved.budget || 0; state.sort = saved.sort || 'score'; }
+  renderHeader();
+  render();
+}
+boot();
+})();
+</script>
+</body>
+</html>
