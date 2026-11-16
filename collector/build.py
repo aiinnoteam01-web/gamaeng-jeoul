@@ -67,6 +67,7 @@ def load_brands():
         b["name"] = pick(r, "brand_list", "name") or b.get("name")
         b["corp"] = pick(r, "brand_list", "corp") or b.get("corp")
         b["sector"] = pick(r, "brand_list", "sector") or b.get("sector")
+        b["start"] = pick(r, "brand_list", "start_date") or b.get("start")
         name_index[norm_name(b["name"])] = k
     for y, r in store.rows("brand_stats"):
         k = brand_key(r, "brand_stats")
@@ -102,6 +103,22 @@ def ftc_index():
 
 def _in_target(sector):
     return config.TARGET_SECTORS is None or (sector in config.TARGET_SECTORS)
+
+
+def sector_counts():
+    """업종 이름별 브랜드 수 (가맹점이 있는 브랜드만). 많은 순."""
+    cnt = defaultdict(int)
+    for b in load_brands().values():
+        if b.get("sector") and b["stats"]:
+            latest = b["stats"][max(b["stats"])]
+            if latest.get("stores"):
+                cnt[b["sector"]] += 1
+    return sorted(cnt.items(), key=lambda kv: -kv[1])
+
+
+def start_year(v):
+    m = re.match(r"\s*((?:19|20)[0-9]{2})", str(v or ""))
+    return int(m.group(1)) if m else None
 
 
 def content_targets():
@@ -164,7 +181,8 @@ def build():
             continue
         latest_years.append(ly)
         closed = (cur.get("end") or 0) + (cur.get("cancel") or 0) if (cur.get("end") is not None or cur.get("cancel") is not None) else None
-        base = prev.get("stores") if prev and prev.get("stores") else stores
+        # 공정위 업종 통계(종료해지율 = 종료·해지 가맹점 수 ÷ 그해 가맹점 수)와 같은 기준으로 계산합니다.
+        base = stores
         close = round(closed / base * 100, 1) if closed is not None and base else None
         growth = round((stores - prev["stores"]) / prev["stores"] * 100, 1) if prev and prev.get("stores") else None
         transfer = round(cur["transfer"] / base * 100, 1) if cur.get("transfer") is not None and base else None
@@ -186,7 +204,8 @@ def build():
             partial = any(v is None for v in vals)
             parts = [round(v or 0, 1) for v in vals]
         direct = cur.get("direct") if cur.get("direct") is not None else parsed.get("direct")
-        age = (this_year - parsed["start_year"]) if parsed.get("start_year") else None
+        sy = start_year(b.get("start")) or parsed.get("start_year")   # 브랜드 목록의 가맹사업개시일자를 우선 사용
+        age = (this_year - sy) if sy else None
 
         item = {
             "id": k, "name": name, "corp": b.get("corp"), "year": ly,
@@ -207,7 +226,7 @@ def build():
             "업종": sector, "브랜드": name, "가맹본부": b.get("corp") or "", "정보공개서번호": sn or "",
             "가맹금": parsed.get("fee"), "교육비": parsed.get("edu"), "보증금": parsed.get("deposit"),
             "인테리어": parsed.get("interior"), "기타": parsed.get("etc"), "비용_일부추정": "예" if partial else "",
-            "직영점": item["direct"], "설립연도": parsed.get("start_year"), "법위반": item["viol"],
+            "직영점": item["direct"], "설립연도": sy, "법위반": item["viol"],
             "없는항목": ", ".join(missing), "override": "예" if ov else "",
             "근거_가맹금": ev.get("fee") or "", "근거_인테리어": ev.get("interior") or "",
             "근거_직영점": ev.get("direct") or "", "근거_설립": ev.get("start_year") or "", "근거_법위반": ev.get("viol") or "",
