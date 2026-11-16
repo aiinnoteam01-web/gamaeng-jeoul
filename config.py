@@ -1,5 +1,6 @@
 """가맹저울 수집 설정.
 
+2024년 점검 결과를 반영했습니다 (브랜드 목록·가맹점 현황·정보공개서 목록 항목명 확인 완료).
 이 파일에서 바꿀 곳은 세 군데뿐입니다.
 1) YEARS, TARGET_SECTORS        : 수집할 연도와 업종
 2) DATA_GO_KR 의 year_param 등   : 각 API 명세서의 요청변수 이름
@@ -17,7 +18,7 @@ YEARS = [2020, 2021, 2022, 2023, 2024]
 
 # 정보공개서 본문(창업비용 등)을 수집할 업종. None 이면 전 업종(호출 수가 매우 많아짐).
 # 브랜드 목록 API의 업종명과 똑같이 적어야 합니다. inspect 로 확인하세요.
-TARGET_SECTORS = ["치킨", "커피", "한식", "피자", "편의점"]
+TARGET_SECTORS = ["치킨", "커피", "한식", "피자", "분식", "제과제빵", "편의점"]
 
 # 업종당 정보공개서 본문을 가져올 최대 브랜드 수 (가맹점 수가 많은 순). None 이면 제한 없음.
 CONTENT_LIMIT_PER_SECTOR = 60
@@ -47,21 +48,21 @@ DATA_GO_KR = {
         "title": "공정거래위원회_가맹정보_브랜드 목록 정보 제공 서비스",
         "url": os.environ.get("DGK_BRAND_LIST_URL") or "https://apis.data.go.kr/1130000/FftcBrandRlsInfo2_Service/getBrandinfo",
         # 연도 요청변수 이름 후보. 앞에서부터 차례로 시도해 데이터가 나오는 이름을 자동으로 씁니다.
-        "year_param": ["jngBizCrtraYr", "yr", "crtrYr", "baseYr"],
+        "year_param": ["jngBizCrtraYr"],   # 점검으로 확인됨
         "extra": {},                   # 그 밖의 필수 요청변수 {"이름": "값"}
         "enabled": True,
     },
     "brand_stats": {
         "title": "공정거래위원회_가맹정보_브랜드별 가맹점 현황 제공 서비스",
         "url": os.environ.get("DGK_BRAND_STATS_URL") or "https://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats",
-        "year_param": ["yr", "jngBizCrtraYr", "crtrYr", "baseYr"],
+        "year_param": ["yr"],   # 점검으로 확인됨
         "extra": {},
         "enabled": True,
     },
     "industry_stats": {
         "title": "공정거래위원회_가맹정보 주요 업종별 가맹점수, 개폐점률 현황 제공 서비스",
         "url": os.environ.get("DGK_INDUSTRY_STATS_URL") or "https://apis.data.go.kr/1130000/FftcIndutyFrcsCntOpclStatsService/getIndutyFrcsCntOpclStats",
-        "year_param": ["jngBizCrtraYr", "yr", "crtrYr"],
+        "year_param": ["jngBizCrtrYr"],   # 미리보기 화면으로 확인됨 (2017년부터)
         "extra": {},
         "enabled": True,
     },
@@ -109,8 +110,8 @@ FIELDS = {
         "area_sales": ["arUnitAvrgSlsAmt", "unitArAvrgSlsAmt"],
     },
     "industry_stats": {
-        "sector": ["indutyMlsfcNm", "indutyMclasNm", "indutyNm"],
-        "year": ["yr", "jngBizCrtraYr", "crtrYr"],
+        "sector": ["indutyMlsfcNm", "tpbizMclsfNm", "indutyMclasNm", "indutyNm", "tpbizNm"],
+        "year": ["jngBizCrtrYr", "yr", "jngBizCrtraYr"],
         "stores": ["frcsCnt", "frcsTotCnt"],
         "open_rate": ["newFrcsRt", "opbizRt", "newRt", "opnRt"],
         "close_rate": ["endCncltnRt", "clsbizRt", "clsRt", "closRt"],
@@ -119,7 +120,7 @@ FIELDS = {
         "sn": ["jngIfrmpSn"],
         "name": ["brandNm", "brndNm", "brandName"],
         "corp": ["corpNm", "conmNm", "jnghdqrtrsConmNm"],
-        "year": ["jngBizCrtraYr", "yr"],
+        "year": ["jngBizCrtraYr", "yr"],   # 응답에 연도 항목이 없어 수집한 연도를 씁니다
     },
 }
 
