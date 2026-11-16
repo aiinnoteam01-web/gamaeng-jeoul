@@ -39,8 +39,14 @@ from collector.fetch import ApiError  # noqa: E402
 from collector.sources import fetch_dgk, fetch_ftc_list, fetch_ftc_doc  # noqa: E402
 
 
+def hide_key(v):
+    """응답 안에 들어 있는 인증키(serviceKey=...)를 가립니다. 공개 저장소 실행 기록에 키가 찍히지 않게."""
+    import re
+    return re.sub(r"(serviceKey=)[^&\s]+", r"\1***", str(v), flags=re.I)
+
+
 def cmd_check(_):
-    print(".env 파일:", "있음" if has_env else "없음 (.env.example 을 복사해 만드세요)")
+    print(".env 파일:", "있음" if has_env else "없음 (GitHub 에서는 Secrets 를 쓰므로 정상입니다)")
     print("FTC_FRANCHISE_KEY:", "설정됨" if config.FTC["key"] else "비어 있음")
     print("DATA_GO_KR_KEY:", "설정됨" if config.DGK_COMMON["key"] else "비어 있음")
     for name, cfg in config.DATA_GO_KR.items():
@@ -57,7 +63,7 @@ def cmd_inspect(a):
             from collector.contentparse import extract, to_text
             body = fetch_ftc_doc(a.sn, "content")
             print("── 본문 앞부분 ──")
-            print(to_text(body)[:1500])
+            print(hide_key(to_text(body)[:1500]))
             vals, ev = extract(body)
             print("\n── 추출 결과 (만 원 단위) ──")
             for k, v in vals.items():
@@ -70,6 +76,8 @@ def cmd_inspect(a):
     except ApiError as e:
         sys.exit(str(e))
     print("totalCount:", meta.get("totalCount"), " resultCode:", meta.get("resultCode"), meta.get("resultMsg") or "")
+    if meta.get("year_param"):
+        print("동작한 연도 요청변수:", meta["year_param"])
     if not items:
         print("항목이 없어요. 연도나 요청변수(config.py 의 year_param, extra)를 확인하세요.")
         return
@@ -77,7 +85,7 @@ def cmd_inspect(a):
     for i, it in enumerate(items[:2], 1):
         print("\n── %d번째 레코드 ──" % i)
         for k, v in it.items():
-            print("  %-28s %s" % (k, v))
+            print("  %-28s %s" % (k, hide_key(v)))
     fields = config.FIELDS.get(a.source)
     if fields:
         keys = {k.lower() for k in items[0]}
@@ -103,7 +111,7 @@ def cmd_collect(a):
             except ApiError as e:
                 print("오류:", e)
     if want("ftc_list"):
-        for y in sorted({years[-1], years[-1] + 1}):
+        for y in sorted(set(years) | {years[-1] + 1}):   # 정보공개서는 연도별로 나뉘어 있어 전체 연도를 받습니다
             try:
                 rows, _ = fetch_ftc_list(y)
                 if rows:
@@ -139,6 +147,9 @@ def cmd_build(_):
     for s, lst in data["sectors"].items():
         noc = sum(1 for b in lst if b["parts"] is None)
         print(" - %-8s 브랜드 %3d개 (초기비용 없음 %d개)%s" % (s, len(lst), noc, " · 업종 통계 있음" if s in data["industry"] else ""))
+    from collector.build import sector_counts
+    print("\n수집된 업종 이름과 브랜드 수 (TARGET_SECTORS 에 이 이름 그대로 적어야 화면에 나옵니다):")
+    print("  " + ", ".join("%s(%d)" % kv for kv in sector_counts()))
     print("\n실제로 사용된 응답 항목명:")
     for src, m in USED.items():
         print(" ", src, dict(m))
