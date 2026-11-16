@@ -102,7 +102,11 @@ def ftc_index():
 
 
 def _in_target(sector):
-    return config.TARGET_SECTORS is None or (sector in config.TARGET_SECTORS)
+    # 띄어쓰기 차이("음료 (커피 외)" / "음료(커피 외)")는 무시하고 비교합니다.
+    if config.TARGET_SECTORS is None:
+        return True
+    key = re.sub(r"\s", "", str(sector or ""))
+    return key in {re.sub(r"\s", "", t) for t in config.TARGET_SECTORS}
 
 
 def sector_counts():
