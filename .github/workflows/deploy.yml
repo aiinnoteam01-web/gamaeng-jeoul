@@ -1,0 +1,49 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: ["collect"]
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: data 브랜치의 data.json 가져오기
+        run: |
+          if git fetch -q origin data; then
+            git show origin/data:data.json > site/data.json
+            echo "data.json 을 가져왔습니다."
+          else
+            echo "data 브랜치가 아직 없어 예시 데이터로 배포합니다."
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
