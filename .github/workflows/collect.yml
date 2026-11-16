@@ -1,0 +1,65 @@
+name: collect
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_content:
+        description: "정보공개서 본문 수집 건너뛰기 (yes / no)"
+        required: true
+        default: "no"
+  schedule:
+    - cron: "0 18 1 * *"   # 매월 2일 새벽 3시 (한국 시간)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      FTC_FRANCHISE_KEY: ${{ secrets.FTC_FRANCHISE_KEY }}
+      DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 이전 수집 원본 불러오기
+        uses: actions/cache@v4
+        with:
+          path: data/raw.sqlite3
+          key: raw-db-${{ github.run_id }}
+          restore-keys: raw-db-
+
+      - name: 수집
+        run: |
+          if [ "${{ inputs.skip_content }}" = "yes" ]; then
+            python run.py collect --skip-content
+          else
+            python run.py collect
+          fi
+
+      - name: 가공
+        run: python run.py build
+
+      - name: data 브랜치에 저장
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          cp site/data.json out/data.json
+          if [ -f data/review.csv ]; then cp data/review.csv out/review.csv; fi
+          cd out
+          git init -q
+          git checkout -q -b data
+          git add .
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "데이터 갱신 $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
