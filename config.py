@@ -33,6 +33,7 @@ SLEEP_SEC = 0.25
 # 응답 금액의 단위. 명세서를 보고 "천원", "만원", "원", "백만원" 중 하나로 맞추세요.
 SALES_UNIT = "천원"          # 브랜드별 가맹점 현황의 평균매출금액
 INDUSTRY_SALES_UNIT = "천원"  # 업종 통계 금액 (사용하는 경우)
+COST_UNIT = "천원"           # 브랜드별 창업 금액 현황의 금액
 
 # ── 공정위 가맹사업정보제공시스템 (franchise.ftc.go.kr) ─────────────
 FTC = {
@@ -63,6 +64,13 @@ DATA_GO_KR = {
         "title": "공정거래위원회_가맹정보 주요 업종별 가맹점수, 개폐점률 현황 제공 서비스",
         "url": os.environ.get("DGK_INDUSTRY_STATS_URL") or "https://apis.data.go.kr/1130000/FftcIndutyFrcsCntOpclStatsService/getIndutyFrcsCntOpclStats",
         "year_param": ["jngBizCrtrYr"],   # 미리보기 화면으로 확인됨 (2017년부터)
+        "extra": {},
+        "enabled": True,
+    },
+    "brand_costs": {
+        "title": "공정거래위원회_가맹정보_브랜드별 창업 금액 현황 제공 서비스",
+        "url": os.environ.get("DGK_BRAND_COSTS_URL") or "https://apis.data.go.kr/1130000/FftcBrandFntnStatsService/getBrandFntnStats",
+        "year_param": ["yr"],   # 미리보기 화면으로 확인됨
         "extra": {},
         "enabled": True,
     },
@@ -115,6 +123,17 @@ FIELDS = {
         "stores": ["frcsCnt", "frcsTotCnt"],
         "open_rate": ["newFrcsRt", "opbizRt", "newRt", "opnRt"],
         "close_rate": ["endCncltnRt", "clsbizRt", "clsRt", "closRt"],
+    },
+    "brand_costs": {
+        "name": ["brandNm", "brndNm", "brandName"],
+        "corp": ["corpNm", "jnghdqrtrsConmNm", "conmNm"],
+        "year": ["yr", "jngBizCrtraYr"],
+        "fee": ["jngBzmnJngAmt", "frcsJngAmt", "jngAmt"],
+        "edu": ["jngBzmnEduAmt", "frcsEduAmt", "eduAmt"],
+        "deposit": ["jngBzmnAssrncAmt", "frcsAssrncAmt", "assrncAmt", "grntyAmt"],
+        "etc": ["jngBzmnEtcAmt", "frcsEtcAmt", "etcAmt"],
+        "interior": ["intrrAmt", "jngBzmnIntrrAmt", "itrrAmt"],
+        "total": ["smtnAmt", "jngBzmnTotAmt", "totAmt", "sumAmt"],
     },
     "ftc_list": {
         "sn": ["jngIfrmpSn"],
