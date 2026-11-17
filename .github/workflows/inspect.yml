@@ -29,6 +29,10 @@ jobs:
       - name: 설정 점검
         run: python run.py check
 
+      - name: 창업 금액
+        continue-on-error: true
+        run: python run.py inspect brand_costs --year ${{ inputs.year }}
+
       - name: 브랜드 목록
         continue-on-error: true
         run: python run.py inspect brand_list --year ${{ inputs.year }}
