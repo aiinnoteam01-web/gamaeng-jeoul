@@ -23,6 +23,9 @@ TARGET_SECTORS = ["한식", "기타 외식", "커피", "치킨", "분식", "주�
 # 업종당 정보공개서 본문을 가져올 최대 브랜드 수 (가맹점 수가 많은 순). None 이면 제한 없음.
 CONTENT_LIMIT_PER_SECTOR = 30
 
+# 화면 목록에 보여줄 업종별 브랜드 수 (가맹점 수가 많은 순). None 이면 전부.
+LIST_LIMIT_PER_SECTOR = 30
+
 # 화면에 올릴 업종의 최소 브랜드 수
 MIN_BRANDS_PER_SECTOR = 3
 
