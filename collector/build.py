@@ -144,6 +144,23 @@ def content_targets():
     return out
 
 
+def load_costs():
+    """브랜드별 창업 금액 (공공데이터포털): 정규화한 브랜드명 → 가장 최근 연도 금액(만 원)."""
+    f = UNIT[config.COST_UNIT]
+    res = {}
+    for y, r in store.rows("brand_costs"):
+        nm = norm_name(pick(r, "brand_costs", "name"))
+        yr = _year(r, "brand_costs", y) or 0
+        vals = {k: num(pick(r, "brand_costs", k)) for k in ("fee", "edu", "deposit", "etc", "total")}
+        total = vals["total"] if vals["total"] is not None else sum(v or 0 for k, v in vals.items() if k != "total")
+        if not nm or not total:
+            continue   # 금액이 모두 0 이면 신고되지 않은 것으로 봄
+        if nm in res and res[nm]["year"] > yr:
+            continue
+        res[nm] = {"year": yr, **{k: round((v or 0) * f, 1) for k, v in vals.items()}}
+    return res
+
+
 def load_industry():
     res = {}
     for y, r in store.rows("industry_stats"):
@@ -162,7 +179,7 @@ def load_industry():
 
 
 def build():
-    brands, idx = load_brands(), ftc_index()
+    brands, idx, costs = load_brands(), ftc_index(), load_costs()
     overrides = {}
     if os.path.exists(config.OVERRIDES):
         with open(config.OVERRIDES, encoding="utf-8") as f:
@@ -202,11 +219,24 @@ def build():
         body = store.get_content(sn) if sn else None
         if body:
             parsed, ev = extract(body)
-        parts, partial = None, False
-        if parsed.get("fee") is not None and parsed.get("interior") is not None:
+        parts, partial, cost_src, etc_incl = None, False, "", False
+        c = costs.get(norm_name(name))
+        if c:
+            # 1순위: 공공데이터포털 창업 금액. 인테리어는 '기타'에 들어 있으므로,
+            # 정보공개서에서 인테리어 금액을 찾았으면 기타에서 떼어내고, 못 찾았으면 기타에 포함된 채로 둡니다.
+            pi = parsed.get("interior")
+            if pi is not None and 0 < pi <= c["etc"]:
+                interior, etc = pi, round(c["etc"] - pi, 1)
+            else:
+                interior, etc, etc_incl = 0.0, c["etc"], True
+            parts = [c["fee"], c["edu"], c["deposit"], interior, etc]
+            cost_src = "창업금액 API"
+        elif parsed.get("fee") is not None and parsed.get("interior") is not None:
+            # 2순위: 정보공개서 본문에서 뽑은 금액
             vals = [parsed.get(x) for x in ("fee", "edu", "deposit", "interior", "etc")]
             partial = any(v is None for v in vals)
             parts = [round(v or 0, 1) for v in vals]
+            cost_src = "정보공개서"
         direct = cur.get("direct") if cur.get("direct") is not None else parsed.get("direct")
         sy = start_year(b.get("start")) or parsed.get("start_year")   # 브랜드 목록의 가맹사업개시일자를 우선 사용
         age = (this_year - sy) if sy else None
@@ -217,6 +247,7 @@ def build():
             "direct": None if direct is None else int(direct), "age": age,
             "close": close, "growth": growth, "transfer": transfer,
             "viol": parsed.get("viol"), "flow": flow, "jngIfrmpSn": sn,
+            "etcIncl": etc_incl,
         }
         ov = overrides.get(name)
         if ov:
@@ -230,14 +261,16 @@ def build():
             "업종": sector, "브랜드": name, "가맹본부": b.get("corp") or "", "정보공개서번호": sn or "",
             "가맹금": parsed.get("fee"), "교육비": parsed.get("edu"), "보증금": parsed.get("deposit"),
             "인테리어": parsed.get("interior"), "기타": parsed.get("etc"), "비용_일부추정": "예" if partial else "",
+            "초기비용_출처": cost_src, "초기비용_합계": round(sum(parts), 1) if parts else None,
             "직영점": item["direct"], "설립연도": sy, "법위반": item["viol"],
             "없는항목": ", ".join(missing), "override": "예" if ov else "",
             "근거_가맹금": ev.get("fee") or "", "근거_인테리어": ev.get("interior") or "",
             "근거_직영점": ev.get("direct") or "", "근거_설립": ev.get("start_year") or "", "근거_법위반": ev.get("viol") or "",
         })
 
-    out_sectors = {s: sorted(v, key=lambda x: -x["stores"]) for s, v in sectors.items()
-                   if len(v) >= config.MIN_BRANDS_PER_SECTOR}
+    lim = config.LIST_LIMIT_PER_SECTOR
+    out_sectors = {s: sorted(v, key=lambda x: -x["stores"])[:lim] if lim else sorted(v, key=lambda x: -x["stores"])
+                   for s, v in sectors.items() if len(v) >= config.MIN_BRANDS_PER_SECTOR}
     industry = {s: v for s, v in load_industry().items() if s in out_sectors}
     data = {
         "meta": {"generatedAt": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
