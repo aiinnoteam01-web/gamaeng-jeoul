@@ -519,11 +519,15 @@ function renderReport(){
   const pc = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
   let costHTML = '<p class="note" style="margin:0">초기비용 항목을 공개 데이터에서 확인하지 못했어요. 정보공개서 원문의 “가맹점사업자의 부담” 항목을 확인해 주세요.</p>';
   if (s.parts){
-    const withParts = D.list.filter(b=>b.parts);
-    const avgInterior = meanN(withParts.map(b=>b.parts[3]));
-    costHTML = '<div class="costbar">' + s.parts.map((p,i)=>'<div style="width:' + (s.cost ? p/s.cost*100 : 0).toFixed(1) + '%;background:' + pc[i] + '"></div>').join('') + '</div>' +
-      '<div class="legend">' + s.parts.map((p,i)=>'<span><i style="background:' + pc[i] + '"></i>' + PART_NAMES[i] + ' ' + won(p) + '</span>').join('') + '</div>' +
-      (s.cost ? '<p class="note" style="margin:10px 0 0">인테리어가 ' + Math.round(s.parts[3]/s.cost*100) + '%를 차지해요. 분석 브랜드 평균 인테리어 비용(약 ' + won(avgInterior) + '만 원)보다 ' + (s.parts[3] >= avgInterior ? '높아요.' : '낮아요.') + '</p>' : '');
+    const withInt = D.list.filter(b=>b.parts && !b.etcIncl && b.parts[3] > 0);
+    const avgInterior = meanN(withInt.map(b=>b.parts[3]));
+    const names = PART_NAMES.map((n,i)=> i === 4 && s.etcIncl ? '기타 (인테리어 포함)' : n);
+    const show = s.parts.map((p,i)=>i).filter(i => !(i === 3 && s.etcIncl));
+    costHTML = '<div class="costbar">' + show.map(i=>'<div style="width:' + (s.cost ? s.parts[i]/s.cost*100 : 0).toFixed(1) + '%;background:' + pc[i] + '"></div>').join('') + '</div>' +
+      '<div class="legend">' + show.map(i=>'<span><i style="background:' + pc[i] + '"></i>' + names[i] + ' ' + won(s.parts[i]) + '</span>').join('') + '</div>' +
+      (!s.cost ? '' : s.etcIncl
+        ? '<p class="note" style="margin:10px 0 0">공정위 창업 금액 자료에는 인테리어가 기타 비용에 포함되어 있어요. 기타 비용이 전체의 ' + Math.round(s.parts[4]/s.cost*100) + '%예요. 인테리어 금액만 따로 보려면 정보공개서 원문을 확인하세요.</p>'
+        : '<p class="note" style="margin:10px 0 0">인테리어가 ' + Math.round(s.parts[3]/s.cost*100) + '%를 차지해요.' + (ok(avgInterior) && withInt.length >= 3 ? ' 인테리어 금액을 확인한 브랜드 평균(약 ' + won(avgInterior) + '만 원)보다 ' + (s.parts[3] >= avgInterior ? '높아요.' : '낮아요.') : '') + '</p>');
   }
   let flowHTML = '<p class="note">연도별 개점·폐점 데이터가 없어요.</p>', flowNote = '';
   if (s.flow.length){
