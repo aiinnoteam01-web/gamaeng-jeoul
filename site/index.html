@@ -175,6 +175,22 @@ ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font
 .legend-dots{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--sub);margin-top:6px}
 .legend-dots i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
 .vdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.cmp-sel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cmp-band{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:14px}
+.ctable{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+.ctable th,.ctable td{padding:12px 10px;text-align:left;vertical-align:top;border-top:1px solid var(--line2)}
+.ctable thead th{background:var(--muted);color:var(--text);font-weight:700;border-top:0}
+.ctable thead th.avgc,.ctable td.avgc{background:var(--muted)}
+.ctable .val{font-size:16px;font-weight:600}
+.ctable .val.best{font-weight:800}
+.ctable .sub{display:block;font-size:12px;color:var(--sub);margin-top:2px;font-weight:400}
+.ctable tr.ex td{border-top:0;padding-top:0;font-size:13px;color:var(--sub)}
+@media (max-width:760px){
+  .cmp-sel,.cmp-band{grid-template-columns:1fr}
+  .ctable{font-size:13px}
+  .ctable .val{font-size:14px}
+  .ctable th,.ctable td{padding:10px 6px}
+}
 .empty{padding:40px 20px;text-align:center;color:var(--sub)}
 .sitefoot{border-top:1px solid var(--line);padding:18px 0 28px;font-size:12px;color:var(--sub)}
 @media (max-width:760px){
@@ -615,6 +631,18 @@ function renderCompare(){
     D.list.map(x => '<option value="' + esc(x.id) + '"' + (x === b ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>').join('');
   const concl = set.map(b => { const top = Object.keys(b.ax).sort((x,y)=>b.ax[y]-b.ax[x])[0];
     return '<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:30px;font-weight:800">' + b.grade + '</span><span style="font-size:14px;color:var(--band-sub)">' + b.score + '점</span></div><div style="font-size:15px;font-weight:700;color:var(--band-sub)">' + FIT[top] + '</div><div style="font-size:14px;color:var(--band-body);line-height:1.5">' + esc(b.note) + '</div></div>'; }).join('');
+  // 평균 대비 차이를 글로 (비율 항목은 %p, 금액·매출은 %, 배수·연수는 그 단위로)
+  const diffText = (m, v, avg) => {
+    if (!ok(v) || !ok(avg)) return '';
+    let d, unit;
+    if (m.k === 'sales' || m.k === 'cost'){ if (!avg) return ''; d = (v-avg)/avg*100; unit = '%'; }
+    else if (m.k === 'eff'){ d = v-avg; unit = '배'; }
+    else if (m.k === 'age'){ d = v-avg; unit = '년'; }
+    else { d = v-avg; unit = '%p'; }
+    if (Math.abs(d) < (unit === '%' ? 1 : 0.1)) return '평균과 비슷';
+    const n = unit === '년' ? Math.round(Math.abs(d)) : (unit === '%' ? Math.round(Math.abs(d)) : Math.abs(d).toFixed(1));
+    return '평균보다 ' + n + unit + ' ' + (d > 0 ? '높음' : '낮음');
+  };
   const rows = METRICS.map(m => {
     const idx = set.map((b,i)=>i).filter(i => ok(m.v(set[i])));
     let bi = -1, wi = -1;
@@ -623,24 +651,28 @@ function renderCompare(){
       bi = idx.reduce((p,i)=>g(i) > g(p) ? i : p, idx[0]);
       wi = idx.reduce((p,i)=>g(i) < g(p) ? i : p, idx[0]);
     }
-    const better = ok(D.avg[m.k]) ? set.filter(b => ok(m.v(b)) && (m.hb ? m.v(b) >= D.avg[m.k] : m.v(b) <= D.avg[m.k])).length : null;
-    const cells = set.map((b,i) => '<div><span style="font-size:17px;font-weight:' + (i === bi && bi !== wi ? 800 : 500) + '"><i class="vdot" style="background:' + colors[i] + '"></i>' + F(m, m.v(b)) + (i === bi && bi !== wi ? ' <span class="pill s-ok" style="font-size:11px">가장 유리</span>' : '') + '</span></div>').join('') +
-      '<div></div><div style="grid-column:2 / span 3">' + trackHTML(m, set, D, colors) + '</div>';
-    const text = idx.length < 2 ? '비교할 수 있는 값이 부족해요.' : bi === wi ? '세 곳이 같은 수준이에요.' : '가장 유리한 곳은 ' + set[bi].name + '(' + F(m, m.v(set[bi])) + '), 가장 불리한 곳은 ' + set[wi].name + '(' + F(m, m.v(set[wi])) + ')이에요.' + (better !== null ? ' 세 곳 중 ' + better + '곳이 업종 평균보다 유리해요.' : '');
-    return '<div class="cmpgrid cmprow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + m.dir + '</div></div>' + cells + '<div class="explain">' + esc(text) + '</div></div>';
+    const avg = D.avg[m.k], R = rangeOf(D.list.map(m.v));
+    const better = ok(avg) ? set.filter(b => ok(m.v(b)) && (m.hb ? m.v(b) >= avg : m.v(b) <= avg)).length : null;
+    const cells = set.map((b,i) => { const best = i === bi && bi !== wi;
+      return '<td><span class="val' + (best ? ' best' : '') + '">' + F(m, m.v(b)) + '</span>' + (best ? ' <span class="pill s-ok" style="font-size:11px">가장 유리</span>' : '') + '<span class="sub">' + esc(diffText(m, m.v(b), avg)) + '</span></td>'; }).join('');
+    const avgCell = '<td class="avgc"><span class="val">' + F(m, avg) + '</span>' + (R ? '<span class="sub">최저 ' + F(m, R.min) + ' · 최고 ' + F(m, R.max) + '</span>' : '') + '</td>';
+    const text = idx.length < 2 ? '비교할 수 있는 값이 부족해요.' : bi === wi ? '세 곳이 같은 수준이에요.' : '가장 유리한 곳은 ' + set[bi].name + ', 가장 불리한 곳은 ' + set[wi].name + '이에요.' + (better !== null ? ' 세 곳 중 ' + better + '곳이 업종 평균보다 유리해요.' : '');
+    return '<tr><th scope="row"><div style="font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px;font-weight:400">' + m.dir + '</div></th>' + cells + avgCell + '</tr>' +
+      '<tr class="ex"><td></td><td colspan="4">' + esc(text) + '</td></tr>';
   }).join('');
-  const patRow = '<div class="cmpgrid cmprow"><div style="font-size:15px;font-weight:700">위험 패턴</div>' + set.map(b => { const f = b.patterns.filter(p=>p.status==='해당' || p.status==='주의'); return '<div style="display:flex;flex-wrap:wrap;gap:6px">' + (f.length ? f.map(p=>'<span class="pill ' + statusCls(p.status) + '">' + esc(p.name) + '</span>').join('') : '<span class="pill s-ok">패턴 없음</span>') + '</div>'; }).join('') + '</div>';
+  const patRow = '<tr><th scope="row" style="font-weight:700">위험 패턴</th>' + set.map(b => { const f = b.patterns.filter(p=>p.status==='해당' || p.status==='주의'); return '<td><div style="display:flex;flex-wrap:wrap;gap:6px">' + (f.length ? f.map(p=>'<span class="pill ' + statusCls(p.status) + '">' + esc(p.name) + '</span>').join('') : '<span class="pill s-ok">패턴 없음</span>') + '</div></td>'; }).join('') + '<td class="avgc"></td></tr>';
+  const head = '<thead><tr><th scope="col" style="width:150px">항목</th>' + set.map((b,i) => '<th scope="col"><i class="vdot" style="background:' + colors[i] + '"></i>' + esc(b.name) + '</th>').join('') + '<th scope="col" class="avgc">업종 평균</th></tr></thead>';
   const P = PRIOS[state.prio];
   const ranked = set.filter((b,i,a)=>a.indexOf(b)===i).sort((x,y)=>P.w(y,set)-P.w(x,set));
   const prioBtns = PRIOS.map((p,i)=>'<button class="chip" data-act="prio" data-i="' + i + '" aria-pressed="' + (i === state.prio) + '">' + p.label + '</button>').join('');
   const rankHTML = ranked.map((b,i)=>'<li class="' + (i === 0 ? 'first' : '') + '"><div style="font-size:13px;font-weight:700;color:' + (i === 0 ? 'var(--accent)' : 'var(--sub)') + '">' + (i+1) + '위</div><div style="font-size:18px;font-weight:800;margin-top:2px">' + esc(b.name) + '</div><div class="small" style="margin-top:4px">' + esc(P.why(b, D)) + '</div><div style="margin-top:8px;font-size:13px">추정 회수 <strong>' + months(payback(b, state.margin)) + '</strong></div></li>').join('');
   return '<div class="stack">' + banner() +
     '<div><span class="small">기준 브랜드와 초기비용이 비슷한 브랜드를 자동으로 골랐어요. 바꾸려면 이름을 눌러 고르세요.</span></div>' +
-    '<div class="scroll"><div style="min-width:860px" class="stack">' +
-      '<div class="cmpgrid" style="align-items:end"><h1 style="margin:0;font-size:20px;font-weight:800">세 브랜드 비교</h1>' + selects + '</div>' +
-      '<section class="band cmpgrid" aria-label="비교 결론"><div><div style="font-size:13px;color:var(--band-sub);font-weight:700">분석 결론</div><div style="font-size:18px;font-weight:800;margin-top:4px;line-height:1.4">무엇을 중시하느냐에 따라 답이 달라요</div></div>' + concl + '</section>' +
-      '<section aria-label="항목별 비교와 해석" style="border-top:2px solid var(--text)">' + rows + patRow + '<p class="small" style="margin:12px 0 0">막대는 업종 ' + D.list.length + '개 브랜드 중 대부분(하위 10%~상위 10%)이 들어가는 범위, 세로선과 숫자는 업종 평균(상·하위 10% 극단값 제외)입니다. 점의 색은 위 브랜드 색과 같습니다.</p></section>' +
-    '</div></div>' +
+    '<h1 style="margin:0;font-size:20px;font-weight:800">세 브랜드 비교</h1>' +
+    '<div class="cmp-sel">' + selects + '</div>' +
+    '<section class="band" aria-label="비교 결론"><div style="font-size:13px;color:var(--band-sub);font-weight:700">분석 결론</div><div style="font-size:18px;font-weight:800;margin-top:4px;line-height:1.4">무엇을 중시하느냐에 따라 답이 달라요</div><div class="cmp-band">' + concl + '</div></section>' +
+    '<section class="card" aria-label="항목별 비교" style="overflow:hidden"><div class="scroll"><table class="ctable">' + head + '<tbody>' + rows + patRow + '</tbody></table></div>' +
+    '<p class="foot">업종 평균은 업종별 가맹점 수 상위 ' + D.list.length + '개 브랜드에서 상·하위 10% 극단값을 뺀 평균입니다. 폐점률 평균은 ' + esc(D.avg.closeSrc) + ' 기준입니다.</p></section>' +
     '<section class="prio" aria-label="우선순위별 다시 보기"><div style="flex:1 1 320px"><h2 style="margin:0;font-size:18px;font-weight:800">내 우선순위로 다시 보기</h2><div class="small" style="margin-top:4px">기준을 누르면 순위가 다시 계산돼요</div><div class="chips" style="margin-top:14px">' + prioBtns + '</div>' +
       '<label style="display:block;margin-top:18px;font-size:14px;color:var(--sub)">예상 영업이익률 <strong style="color:var(--text);font-size:16px">' + state.margin + '%</strong><input type="range" min="4" max="20" step="1" value="' + state.margin + '" data-act="margin" style="width:100%;accent-color:var(--accent);margin-top:6px"></label><div class="small" style="font-size:12px">회수기간 = 초기비용 ÷ (연매출 × 이익률 ÷ 12)</div></div>' +
       '<ol class="ranklist">' + rankHTML + '</ol></section>' +
@@ -667,7 +699,7 @@ function renderHeader(){
 function setSector(s){ state.sector = s; state.sel = null; state.cmp = null; savePrefs(); renderHeader(); if (view() !== 'list') location.hash = 'list'; render(); }
 function navHTML(v, where){
   const s = current() ? selected() : null;
-  const items = [['list','전체 목록'],['compare','세 브랜드 비교'],['report','진단 리포트']];
+  const items = [['list','전체 목록'],['report','진단 리포트'],['compare','세 브랜드 비교']];
   return '<nav class="gnav' + (where === 'bottom' ? ' bottom' : '') + '" aria-label="' + (where === 'bottom' ? '아래' : '위') + ' 페이지 이동">' +
     items.map(x => '<a href="#' + x[0] + '"' + (x[0] === v ? ' aria-current="page"' : '') + '>' + x[1] + '</a>').join('') +
     (s ? '<span class="who">선택한 브랜드: <strong>' + esc(s.name) + '</strong></span>' : '') + '</nav>';
