@@ -161,6 +161,20 @@ ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font
 .ranklist li.first{outline:2px solid var(--accent)}
 .s-na{background:var(--muted);color:var(--sub)}
 .banner{background:var(--warn-bg);color:var(--warn-fg);border-radius:10px;padding:10px 14px;font-size:13px}
+.gnav{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gnav a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--surface);color:var(--text);text-decoration:none;font-size:14px;font-weight:700}
+.gnav a[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.gnav .who{margin-left:auto;font-size:13px;color:var(--sub)}
+.gnav.bottom{border-top:1px solid var(--line);padding-top:16px}
+.track{margin-top:22px}
+.track .avg span{position:absolute;bottom:18px;font-size:11px;font-weight:700;color:var(--sub);white-space:nowrap}
+.ends{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:6px}
+.minmax{font-size:11px;color:var(--faint);margin-top:2px}
+.dot.lft span{left:auto;right:calc(100% + 4px);top:50%;transform:translateY(-50%)}
+.dot.rgt span{left:calc(100% + 4px);top:50%;transform:translateY(-50%)}
+.legend-dots{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--sub);margin-top:6px}
+.legend-dots i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.vdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .empty{padding:40px 20px;text-align:center;color:var(--sub)}
 .sitefoot{border-top:1px solid var(--line);padding:18px 0 28px;font-size:12px;color:var(--sub)}
 @media (max-width:760px){
@@ -220,6 +234,8 @@ const SAMPLE = {
   ]
 };
 let DATA = SAMPLE, INDUSTRY = {}, META = {sample:true}, SECTORS = [];
+// 상단 메뉴에 먼저 보여줄 대표 업종 순서
+const PREFERRED = ['치킨','커피','한식','분식','피자','제과제빵','편의점','일식','중식','서양식','패스트푸드','주점','기타 외국식','음료 (커피 외)','아이스크림/빙수','기타 외식','카페'];
 const BUDGETS = [['전체',Infinity],['5천만 원 이하',5000],['7천만 원 이하',7000],['1억 원 이하',10000],['1억 5천만 원 이하',15000]];
 const PART_NAMES = ['가맹금','교육비','보증금','인테리어','기타'];
 const PAT_NAMES = ['개점·해지 동시 급증','성장 둔화','양도(명의변경) 증가'];
@@ -240,6 +256,17 @@ const meanN = a => { const g = good(a); return g.length ? sum(g)/g.length : null
 const avgOf = (...a) => meanN(a);
 function normN(v, arr, higher){ if (!ok(v)) return 0.5; const g = good(arr); const mn = Math.min(...g), mx = Math.max(...g); if (mx === mn) return 0.5; const n = (v-mn)/(mx-mn); return higher ? n : 1-n; }
 function posOf(v, arr){ const g = good(arr); if (!ok(v) || !g.length) return null; const mn = Math.min(...g), mx = Math.max(...g); return mx === mn ? 50 : (v-mn)/(mx-mn)*100; }
+function trimMean(arr){ const g = good(arr).sort((a,b)=>a-b); if (g.length < 8) return meanN(g); const k = Math.floor(g.length * 0.1); return meanN(g.slice(k, g.length - k)); }
+function q(arr, p){ const g = good(arr).sort((a,b)=>a-b); if (!g.length) return null; const i = (g.length-1)*p, lo = Math.floor(i), hi = Math.ceil(i); return g[lo] + (g[hi]-g[lo])*(i-lo); }
+// 막대 범위: 극단값을 빼고 업종의 대부분(하위 10%~상위 10%)이 들어가는 구간
+function rangeOf(arr){
+  const g = good(arr); if (!g.length) return null;
+  const min = Math.min(...g), max = Math.max(...g);
+  let lo = g.length >= 8 ? q(g, .1) : min, hi = g.length >= 8 ? q(g, .9) : max;
+  if (hi === lo){ lo = min; hi = max; }
+  return {lo, hi, min, max};
+}
+function posIn(v, R){ if (!ok(v) || !R) return null; if (R.hi === R.lo) return 50; return Math.max(0, Math.min(100, (v-R.lo)/(R.hi-R.lo)*100)); }
 function rankOf(b, L, f){ if (!ok(f(b))) return null; const s = L.filter(x=>ok(f(x))).sort((x,y)=>f(y)-f(x)); return s.indexOf(b) + 1; }
 const payback = (b, m) => ok(b.cost) && ok(b.sales) && b.sales > 0 ? Math.round(b.cost / (b.sales * m / 100 / 12)) : null;
 const months = v => ok(v) ? v + '개월' : NA;
@@ -255,7 +282,7 @@ function analyze(sector){
   });
   L.forEach(b => b.eff = ok(b.cost) && b.cost > 0 && ok(b.sales) ? b.sales / b.cost : null);
   const col = k => L.map(b => b[k]);
-  const A = {}; ['sales','cost','eff','close','growth','transfer','age','direct','stores'].forEach(k => A[k] = meanN(col(k)));
+  const A = {}; ['sales','cost','eff','close','growth','transfer','age','direct','stores'].forEach(k => A[k] = trimMean(col(k)));   // 극단값(상·하위 10%)을 뺀 평균
   A.closeSrc = '분석 브랜드 평균';
   const I = INDUSTRY[sector];
   if (I && ok(I.closeRate)) { A.close = I.closeRate; A.closeSrc = '공정위 업종 통계' + (I.year ? ' ' + I.year + '년' : ''); }
@@ -263,9 +290,9 @@ function analyze(sector){
     b.ax = {
       profit: normN(b.sales, col('sales'), true),
       eff: normN(b.eff, col('eff'), true),
-      stab: avgOf(normN(b.close, col('close'), false), normN(b.transfer, col('transfer'), false)),
+      stab: 0.7*normN(b.close, col('close'), false) + 0.3*normN(b.transfer, col('transfer'), false),   // 폐점률 70% + 명의변경률 30%
       growth: normN(b.growth, col('growth'), true),
-      hq: avgOf(normN(b.age, col('age'), true), normN(b.direct, col('direct'), true), ok(b.viol) ? (b.viol ? 0 : 1) : 0.5)
+      hq: avgOf(...[ok(b.age) ? normN(b.age, col('age'), true) : null, ok(b.direct) ? normN(b.direct, col('direct'), true) : null, ok(b.viol) ? (b.viol ? 0 : 1) : null].filter(ok)) ?? 0.5   // 값이 있는 항목만
     };
     b.score = Math.round(100 * (0.3*b.ax.profit + 0.2*b.ax.eff + 0.3*b.ax.stab + 0.2*b.ax.hq));
     b.grade = b.score >= 80 ? 'A' : b.score >= 65 ? 'B' : b.score >= 45 ? 'C' : 'D';
@@ -468,16 +495,17 @@ function renderList(){
     : '<tr><td colspan="6" class="empty">조건에 맞는 브랜드가 없어요. 예산을 늘리거나 검색어를 지워 보세요. 초기비용이 확인되지 않은 브랜드는 예산을 “전체”로 두어야 보여요.</td></tr>';
   const th = (key, label, sub) => '<th scope="col" class="' + (sortCol === key ? 'sorted' : '') + '">' + label + (sub ? '<div style="font-weight:400">' + sub + '</div>' : '') + '</th>';
   const P = D.list.filter(b=>ok(b.cost) && ok(b.sales));
-  const costs = P.map(b=>b.cost), sales = P.map(b=>b.sales);
+  const RX = rangeOf(P.map(b=>b.cost)), RY = rangeOf(P.map(b=>b.sales));
   let plot = '<p class="note">초기비용이 확인된 브랜드가 2개 이상이어야 차트를 그릴 수 있어요.</p>';
   if (P.length >= 2){
     const dots = P.map(b => {
-      const size = Math.round(14 + Math.min(Math.sqrt(b.stores)*0.6, 30));
-      return '<button class="dot' + (b === s ? ' on' : '') + '" data-act="select" data-id="' + esc(b.id) + '" aria-label="' + esc(b.name) + ' 선택" style="left:' + (8 + posOf(b.cost,costs)*0.84).toFixed(1) + '%;bottom:' + (10 + posOf(b.sales,sales)*0.8).toFixed(1) + '%;width:' + size + 'px;height:' + size + 'px;background:' + riskColor(b.risk) + ';opacity:' + (b === s ? 1 : .6) + '"><span>' + (b === s || P.length <= 12 ? esc(b.name) : '') + '</span></button>';
+      const x = 6 + posIn(b.cost, RX)*0.88, y = 8 + posIn(b.sales, RY)*0.84, on = b === s;
+      return '<button class="dot' + (on ? ' on' : '') + (x > 55 ? ' lft' : ' rgt') + '" data-act="select" data-id="' + esc(b.id) + '" aria-label="' + esc(b.name) + ' 선택" style="left:' + x.toFixed(1) + '%;bottom:' + y.toFixed(1) + '%;width:14px;height:14px;background:' + riskColor(b.risk) + ';opacity:' + (on ? 1 : .55) + ';z-index:' + (on ? 2 : 1) + '"><span>' + (on ? esc(b.name) : '') + '</span></button>';
     }).join('');
-    const avgX = (8 + posOf(meanN(costs),costs)*0.84).toFixed(1), avgY = (10 + posOf(meanN(sales),sales)*0.8).toFixed(1);
+    const avgX = (6 + posIn(meanN(P.map(b=>b.cost)), RX)*0.88).toFixed(1), avgY = (8 + posIn(meanN(P.map(b=>b.sales)), RY)*0.84).toFixed(1);
     plot = '<div class="plot"><div class="vline" style="left:' + avgX + '%"></div><div class="hline" style="bottom:' + avgY + '%"></div><span class="q">저비용 · 고매출</span>' + dots + '</div>' +
-      '<div class="axisline"><span>초기비용 낮음</span><span>세로 매출, 크기 가맹점 수, 점선 평균</span><span>높음</span></div>';
+      '<div class="axisline"><span>초기비용 낮음</span><span>가로 초기비용 · 세로 연매출 · 점선 평균</span><span>높음</span></div>' +
+      '<div class="legend-dots"><span><i style="background:var(--accent)"></i>리스크 양호</span><span><i style="background:var(--warn)"></i>주의</span><span><i style="background:var(--bad)"></i>위험</span></div>';
   }
   const ns = { sales: D.list.filter(b=>ok(b.sales)).length, eff: D.list.filter(b=>ok(b.eff)).length };
   const tiles = [['매출',s.rk.sales,ns.sales],['비용효율',s.rk.eff,ns.eff],['안정성',s.rk.stab,n],['성장성',s.rk.growth,n]].map(t => '<div class="tile"><div>' + t[0] + '</div><div style="color:' + rankColor(t[1], t[2]) + '">' + (ok(t[1]) ? t[1] + '위' : '–') + '</div></div>').join('');
@@ -493,27 +521,31 @@ function renderList(){
         '<div class="gradebox"><div class="gradecircle g-' + s.grade + '"><b>' + s.grade + '</b><span>' + s.score + '점</span></div><div><div class="title-lg">' + esc(s.name) + '</div><div class="small">종합 ' + s.overall + '위, 리스크 ' + s.risk + (s.corp ? ', ' + esc(s.corp) : '') + '</div></div></div>' +
         '<p style="margin:0;font-size:15px;line-height:1.6">' + esc(s.comment) + '</p>' +
         '<div class="tiles">' + tiles + '</div>' +
-        '<div><div class="row-between" style="margin-bottom:8px"><span class="sec-title" style="margin:0">업종 내 위치</span><span class="small" style="font-size:12px">원을 눌러도 선택돼요</span></div>' + plot + '</div>' +
+        '<div><div class="row-between" style="margin-bottom:8px"><span class="sec-title" style="margin:0">업종 내 위치</span><span class="small" style="font-size:12px">점을 눌러도 선택돼요</span></div>' + plot + '</div>' +
         '<div><div class="sec-title">위험 패턴 탐지</div><div class="patterns">' + pats + '</div></div>' +
         '<div><div class="sec-title">상담 때 꼭 물어볼 것</div><ol class="qs">' + s.questions.slice(0,3).map(q=>'<li>' + esc(q) + '</li>').join('') + '</ol></div>' +
-        '<div class="btns"><a class="btn primary" href="#report">진단 리포트 전체 보기</a><a class="btn" href="#compare" data-act="cmp-reset">비슷한 브랜드와 비교하기</a></div>' +
+        '<div class="btns"><a class="btn primary" href="#report">진단 리포트 전체 보기</a><a class="btn" href="#compare" data-act="cmp-reset">세 브랜드 비교</a></div>' +
       '</aside>' +
     '</div></div>';
 }
 
 // ── 렌더: 리포트
-function trackHTML(m, b, D, color){
-  const vals = D.list.map(m.v), v = m.v(b), p = posOf(v, vals), a = posOf(D.avg[m.k], vals);
-  return '<div class="track">' + (a !== null ? '<div class="avg" style="left:' + Math.max(0, Math.min(100, a)).toFixed(1) + '%"></div>' : '') + (p !== null ? '<div class="pt" style="left:' + p.toFixed(1) + '%;background:' + color + ';box-shadow:0 0 0 1px ' + color + '"></div>' : '') + '</div>';
+function trackHTML(m, list, D, colors){
+  const R = rangeOf(D.list.map(m.v)), a = posIn(D.avg[m.k], R);
+  const avg = a === null ? '' : '<div class="avg" style="left:' + a.toFixed(1) + '%"><span style="' + (a < 15 ? 'left:0' : a > 85 ? 'right:0' : 'left:50%;transform:translateX(-50%)') + '">평균 ' + F(m, D.avg[m.k]) + '</span></div>';
+  const pts = list.map((b,i) => { const p = posIn(m.v(b), R); return p === null ? '' : '<div class="pt" title="' + esc(b.name) + ' ' + F(m, m.v(b)) + '" style="left:' + p.toFixed(1) + '%;background:' + colors[i] + ';box-shadow:0 0 0 1px ' + colors[i] + '"></div>'; }).join('');
+  const ends = R ? '<div class="ends"><span>' + F(m, R.lo) + '</span><span>' + F(m, R.hi) + '</span></div>' : '';
+  const mm = R && (R.min < R.lo || R.max > R.hi) ? '<div class="minmax">업종 최저 ' + F(m, R.min) + ' · 최고 ' + F(m, R.max) + ' (막대는 업종 대부분이 들어가는 범위)</div>' : '';
+  return '<div class="track">' + avg + pts + '</div>' + ends + mm;
 }
 function renderReport(){
   const D = current(); if (!D) return renderList();
   const s = selected();
   const tracks = METRICS.map(m => {
-    const vals = good(D.list.map(m.v)), n = vals.length, r = goodRank(m, s, D.list);
-    const mn = vals.length ? Math.min(...vals) : null, mx = vals.length ? Math.max(...vals) : null;
-    return '<div class="trackrow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + (ok(r) ? '업종 ' + r + '위 / ' + n : '순위 없음') + '</div></div>' +
-      '<div><div class="range"><span>' + F(m, mn) + '</span><strong>' + F(m, m.v(s)) + '</strong><span>' + F(m, mx) + '</span></div>' + trackHTML(m, s, D, 'var(--accent)') + '</div>' +
+    const n = good(D.list.map(m.v)).length, r = goodRank(m, s, D.list);
+    const top = ok(r) && n ? Math.max(1, Math.round(r / n * 100)) : null;
+    return '<div class="trackrow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + (ok(r) ? '업종 ' + r + '위 / ' + n + ' · 상위 ' + top + '%' : '순위 없음') + '</div></div>' +
+      '<div><div style="font-size:17px;font-weight:800">' + F(m, m.v(s)) + '</div>' + trackHTML(m, [s], D, ['var(--accent)']) + '</div>' +
       '<div></div><div class="note" style="color:var(--text)">' + esc(metricInsight(m, s, D.avg, D.list)) + '</div></div>';
   }).join('');
   const pc = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
@@ -543,11 +575,10 @@ function renderReport(){
   const simHTML = sim.map(b => '<button class="btn" data-act="select" data-id="' + esc(b.id) + '" style="min-height:44px;border-radius:22px;background:var(--bg);font-weight:400;gap:10px"><strong>' + esc(b.name) + '</strong><span class="small">매출 ' + diff(b.sales, s.sales) + ', 비용 ' + diff(b.cost, s.cost) + '</span></button>').join('');
   const weak = s.weak.length ? s.weak.slice(0,4).map(w=>'<li>' + esc(w.l) + '</li>').join('') : '<li>눈에 띄는 약점이 없어요.</li>';
   return '<div class="stack">' + banner() +
-    '<div><a class="back" href="#list">전체 목록으로</a></div>' +
     '<section class="card hero" aria-label="종합 진단"><div class="who"><div class="gradecircle big g-' + s.grade + '"><b>' + s.grade + '</b><span>' + s.score + '점, ' + s.overall + '위</span></div><div><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h1 style="margin:0;font-size:30px;font-weight:800">' + esc(s.name) + '</h1><span class="pill ' + statusCls(s.risk) + '">리스크 ' + s.risk + '</span></div>' + (s.corp ? '<div class="small">' + esc(s.corp) + (s.year ? ', ' + s.year + '년 기준' : '') + '</div>' : '') + '<p style="margin:6px 0 0;font-size:15px;line-height:1.65;color:var(--sub)">' + esc(s.comment) + '</p></div></div>' +
       '<dl class="kv"><div><dt>초기비용</dt><dd>' + wonM(s.cost) + '</dd></div><div><dt>연 평균매출</dt><dd>' + wonM(s.sales) + '</dd></div><div><dt>추정 회수기간</dt><dd>' + months(payback(s, state.margin)) + '</dd></div><div><dt>가맹점</dt><dd>' + s.stores.toLocaleString('ko-KR') + '곳</dd></div><div><dt>폐점률</dt><dd>' + pct(s.close) + '</dd></div><div><dt>직영점</dt><dd>' + (ok(s.direct) ? s.direct + '곳' : NA) + '</dd></div></dl></section>' +
     '<div class="split">' +
-      '<section class="card main" style="padding:24px" aria-label="항목별 업종 내 위치와 해석"><h2 style="margin:0;font-size:17px;font-weight:800">항목별 업종 내 위치와 해석</h2><div class="small" style="margin:4px 0 8px">막대는 업종 최저~최고, 세로선은 업종 평균</div>' + tracks + '</section>' +
+      '<section class="card main" style="padding:24px" aria-label="항목별 업종 내 위치와 해석"><h2 style="margin:0;font-size:17px;font-weight:800">항목별 업종 내 위치와 해석</h2><div class="small" style="margin:4px 0 8px">막대는 업종 대부분(하위 10%~상위 10%)이 들어가는 범위, 세로선과 숫자는 업종 평균(극단값 제외)</div>' + tracks + '</section>' +
       '<div class="side stack">' +
         '<section class="card" style="padding:22px;display:flex;flex-direction:column;gap:12px" aria-label="강점과 확인할 점"><div class="box" style="background:var(--accent-soft)"><div style="font-size:14px;font-weight:700;color:var(--accent-strong)">강점</div><ul>' + s.strengths.slice(0,3).map(t=>'<li>' + esc(t) + '</li>').join('') + '</ul></div><div class="box" style="background:var(--strong-bg)"><div style="font-size:14px;font-weight:700;color:var(--warn-fg)">확인할 점</div><ul>' + weak + '</ul></div></section>' +
         '<section class="card" style="padding:22px" aria-label="초기비용 구성"><div class="sec-title" style="font-size:15px;font-weight:800">초기비용 구성 <span style="font-weight:400;color:var(--sub)">' + (ok(s.cost) ? '합계 ' + won(s.cost) + '만 원' : '') + '</span></div>' + costHTML + '</section>' +
@@ -557,16 +588,21 @@ function renderReport(){
       '<section class="card" style="padding:22px" aria-label="개점과 폐점 흐름"><div style="font-size:16px;font-weight:800">개점과 폐점 흐름</div><div class="small" style="display:flex;gap:14px;margin:6px 0 14px;font-size:12px"><span><i style="display:inline-block;width:10px;height:10px;background:var(--accent);margin-right:6px"></i>신규 개점</span><span><i style="display:inline-block;width:10px;height:10px;background:var(--warn);margin-right:6px"></i>종료·해지</span></div><div class="stack" style="gap:12px">' + flowHTML + '</div>' + (flowNote ? '<p class="note" style="margin:14px 0 0;color:var(--text)">' + esc(flowNote) + '</p>' : '') + '</section>' +
       '<section class="card" style="padding:22px" aria-label="위험 패턴 상세"><div style="font-size:16px;font-weight:800">위험 패턴 상세</div><div class="small" style="margin:4px 0 14px">연도별 데이터에서 자동으로 찾은 신호와 근거</div><div class="stack" style="gap:10px">' + pats + '</div></section>' +
     '</div>' +
-    '<section class="card" style="padding:18px 24px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center" aria-label="비슷한 가격대 브랜드"><span style="font-size:15px;font-weight:800">비슷한 가격대 브랜드</span>' + simHTML + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-left:auto"><a class="btn primary" href="#compare" data-act="cmp-reset" style="min-height:44px">세 브랜드 나란히 비교</a><a class="btn" href="https://franchise.ftc.go.kr" target="_blank" rel="noopener" style="min-height:44px">정보공개서 원문 찾기</a></div></section>' +
+    '<section class="card" style="padding:18px 24px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center" aria-label="비슷한 가격대 브랜드"><span style="font-size:15px;font-weight:800">비슷한 가격대 브랜드</span>' + simHTML + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-left:auto"><a class="btn primary" href="#compare" data-act="cmp-reset" style="min-height:44px">세 브랜드 비교</a><a class="btn" href="https://franchise.ftc.go.kr" target="_blank" rel="noopener" style="min-height:44px">정보공개서 원문 찾기</a></div></section>' +
   '</div>';
 }
 
 // ── 렌더: 비교
 const FIT = {profit:'높은 매출을 원한다면', eff:'투자 효율을 중시한다면', stab:'안정적인 운영을 원한다면', growth:'성장하는 브랜드를 원한다면', hq:'탄탄한 본부를 원한다면'};
+const RK_LABEL = {close:'폐점률 낮은 순', transfer:'명의변경률 낮은 순', age:'업력', sales:'매출', growth:'순증가율', eff:'비용 대비 매출', cost:'초기비용 낮은 순'};
+function rkText(keys, b, D){
+  const out = keys.map(k => { const m = METRICS.find(x=>x.k===k); const r = goodRank(m, b, D.list); return ok(r) ? RK_LABEL[k] + ' ' + r + '위' : null; }).filter(Boolean);
+  return out.length ? out.join(' · ') + ' (업종 ' + D.list.length + '개 중)' : '비교할 정보가 부족해요';
+}
 const PRIOS = [
-  {label:'안정성 우선', w:b=>.5*b.ax.stab + .3*b.ax.hq + .1*b.ax.profit + .1*b.ax.eff, why:b=>'폐점률 ' + pct(b.close) + ', 업력 ' + (ok(b.age) ? b.age + '년' : NA) + ', 직영점 ' + (ok(b.direct) ? b.direct + '곳' : NA)},
-  {label:'수익 우선', w:b=>.5*b.ax.profit + .2*b.ax.growth + .2*b.ax.eff + .1*b.ax.stab, why:b=>'연매출 ' + wonM(b.sales) + ', 순증가율 ' + pctS(b.growth)},
-  {label:'초기비용 우선', w:(b,set)=>.6*normN(b.cost, set.map(x=>x.cost), false) + .4*b.ax.stab, why:b=>'초기비용 ' + wonM(b.cost) + ', 회수 약 ' + months(payback(b, state.margin))}
+  {label:'안정성 우선', w:b=>.6*b.ax.stab + .2*b.ax.hq + .1*b.ax.profit + .1*b.ax.eff, why:(b,D)=>rkText(['close','transfer','age'], b, D)},
+  {label:'수익 우선', w:b=>.5*b.ax.profit + .2*b.ax.growth + .2*b.ax.eff + .1*b.ax.stab, why:(b,D)=>rkText(['sales','growth','eff'], b, D)},
+  {label:'초기비용 우선', w:(b,set)=>.6*normN(b.cost, set.map(x=>x.cost), false) + .4*b.ax.stab, why:(b,D)=>rkText(['cost','close'], b, D)}
 ];
 function renderCompare(){
   const D = current(); if (!D) return renderList();
@@ -588,7 +624,8 @@ function renderCompare(){
       wi = idx.reduce((p,i)=>g(i) < g(p) ? i : p, idx[0]);
     }
     const better = ok(D.avg[m.k]) ? set.filter(b => ok(m.v(b)) && (m.hb ? m.v(b) >= D.avg[m.k] : m.v(b) <= D.avg[m.k])).length : null;
-    const cells = set.map((b,i) => '<div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:17px;font-weight:' + (i === bi && bi !== wi ? 800 : 500) + '">' + F(m, m.v(b)) + (i === bi && bi !== wi ? ' <span class="pill s-ok" style="font-size:11px">가장 유리</span>' : '') + '</span>' + trackHTML(m, b, D, colors[i]) + '</div>').join('');
+    const cells = set.map((b,i) => '<div><span style="font-size:17px;font-weight:' + (i === bi && bi !== wi ? 800 : 500) + '"><i class="vdot" style="background:' + colors[i] + '"></i>' + F(m, m.v(b)) + (i === bi && bi !== wi ? ' <span class="pill s-ok" style="font-size:11px">가장 유리</span>' : '') + '</span></div>').join('') +
+      '<div></div><div style="grid-column:2 / span 3">' + trackHTML(m, set, D, colors) + '</div>';
     const text = idx.length < 2 ? '비교할 수 있는 값이 부족해요.' : bi === wi ? '세 곳이 같은 수준이에요.' : '가장 유리한 곳은 ' + set[bi].name + '(' + F(m, m.v(set[bi])) + '), 가장 불리한 곳은 ' + set[wi].name + '(' + F(m, m.v(set[wi])) + ')이에요.' + (better !== null ? ' 세 곳 중 ' + better + '곳이 업종 평균보다 유리해요.' : '');
     return '<div class="cmpgrid cmprow"><div><div style="font-size:15px;font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px">' + m.dir + '</div></div>' + cells + '<div class="explain">' + esc(text) + '</div></div>';
   }).join('');
@@ -596,13 +633,13 @@ function renderCompare(){
   const P = PRIOS[state.prio];
   const ranked = set.filter((b,i,a)=>a.indexOf(b)===i).sort((x,y)=>P.w(y,set)-P.w(x,set));
   const prioBtns = PRIOS.map((p,i)=>'<button class="chip" data-act="prio" data-i="' + i + '" aria-pressed="' + (i === state.prio) + '">' + p.label + '</button>').join('');
-  const rankHTML = ranked.map((b,i)=>'<li class="' + (i === 0 ? 'first' : '') + '"><div style="font-size:13px;font-weight:700;color:' + (i === 0 ? 'var(--accent)' : 'var(--sub)') + '">' + (i+1) + '위</div><div style="font-size:18px;font-weight:800;margin-top:2px">' + esc(b.name) + '</div><div class="small" style="margin-top:4px">' + esc(P.why(b)) + '</div><div style="margin-top:8px;font-size:13px">추정 회수 <strong>' + months(payback(b, state.margin)) + '</strong></div></li>').join('');
+  const rankHTML = ranked.map((b,i)=>'<li class="' + (i === 0 ? 'first' : '') + '"><div style="font-size:13px;font-weight:700;color:' + (i === 0 ? 'var(--accent)' : 'var(--sub)') + '">' + (i+1) + '위</div><div style="font-size:18px;font-weight:800;margin-top:2px">' + esc(b.name) + '</div><div class="small" style="margin-top:4px">' + esc(P.why(b, D)) + '</div><div style="margin-top:8px;font-size:13px">추정 회수 <strong>' + months(payback(b, state.margin)) + '</strong></div></li>').join('');
   return '<div class="stack">' + banner() +
-    '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="back" href="#list">전체 목록으로</a><a class="back" href="#report">진단 리포트</a><span class="small">기준 브랜드와 초기비용이 비슷한 브랜드를 자동으로 골랐어요. 바꾸려면 이름을 눌러 고르세요.</span></div>' +
+    '<div><span class="small">기준 브랜드와 초기비용이 비슷한 브랜드를 자동으로 골랐어요. 바꾸려면 이름을 눌러 고르세요.</span></div>' +
     '<div class="scroll"><div style="min-width:860px" class="stack">' +
-      '<div class="cmpgrid" style="align-items:end"><h1 style="margin:0;font-size:20px;font-weight:800">나란히 비교</h1>' + selects + '</div>' +
+      '<div class="cmpgrid" style="align-items:end"><h1 style="margin:0;font-size:20px;font-weight:800">세 브랜드 비교</h1>' + selects + '</div>' +
       '<section class="band cmpgrid" aria-label="비교 결론"><div><div style="font-size:13px;color:var(--band-sub);font-weight:700">분석 결론</div><div style="font-size:18px;font-weight:800;margin-top:4px;line-height:1.4">무엇을 중시하느냐에 따라 답이 달라요</div></div>' + concl + '</section>' +
-      '<section aria-label="항목별 비교와 해석" style="border-top:2px solid var(--text)">' + rows + patRow + '<p class="small" style="margin:12px 0 0">막대는 업종 ' + D.list.length + '개 브랜드의 최저~최고 범위, 세로선은 업종 평균입니다.</p></section>' +
+      '<section aria-label="항목별 비교와 해석" style="border-top:2px solid var(--text)">' + rows + patRow + '<p class="small" style="margin:12px 0 0">막대는 업종 ' + D.list.length + '개 브랜드 중 대부분(하위 10%~상위 10%)이 들어가는 범위, 세로선과 숫자는 업종 평균(상·하위 10% 극단값 제외)입니다. 점의 색은 위 브랜드 색과 같습니다.</p></section>' +
     '</div></div>' +
     '<section class="prio" aria-label="우선순위별 다시 보기"><div style="flex:1 1 320px"><h2 style="margin:0;font-size:18px;font-weight:800">내 우선순위로 다시 보기</h2><div class="small" style="margin-top:4px">기준을 누르면 순위가 다시 계산돼요</div><div class="chips" style="margin-top:14px">' + prioBtns + '</div>' +
       '<label style="display:block;margin-top:18px;font-size:14px;color:var(--sub)">예상 영업이익률 <strong style="color:var(--text);font-size:16px">' + state.margin + '%</strong><input type="range" min="4" max="20" step="1" value="' + state.margin + '" data-act="margin" style="width:100%;accent-color:var(--accent);margin-top:6px"></label><div class="small" style="font-size:12px">회수기간 = 초기비용 ÷ (연매출 × 이익률 ÷ 12)</div></div>' +
@@ -628,11 +665,19 @@ function renderHeader(){
     : '출처: ' + (META.source || '공정거래위원회 가맹사업 정보') + ', ' + (META.latestYear ? META.latestYear + '년 기준, ' : '') + (META.generatedAt ? META.generatedAt + ' 수집. ' : '') + '정보공개서 본문에서 자동 추출한 항목(초기비용·직영점·업력·법 위반)은 오차가 있을 수 있어 원문 확인이 필요합니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.';
 }
 function setSector(s){ state.sector = s; state.sel = null; state.cmp = null; savePrefs(); renderHeader(); if (view() !== 'list') location.hash = 'list'; render(); }
+function navHTML(v, where){
+  const s = current() ? selected() : null;
+  const items = [['list','전체 목록'],['compare','세 브랜드 비교'],['report','진단 리포트']];
+  return '<nav class="gnav' + (where === 'bottom' ? ' bottom' : '') + '" aria-label="' + (where === 'bottom' ? '아래' : '위') + ' 페이지 이동">' +
+    items.map(x => '<a href="#' + x[0] + '"' + (x[0] === v ? ' aria-current="page"' : '') + '>' + x[1] + '</a>').join('') +
+    (s ? '<span class="who">선택한 브랜드: <strong>' + esc(s.name) + '</strong></span>' : '') + '</nav>';
+}
 function render(){
   const v = view();
-  app.innerHTML = v === 'report' ? renderReport() : v === 'compare' ? renderCompare() : renderList();
+  const body = v === 'report' ? renderReport() : v === 'compare' ? renderCompare() : renderList();
+  app.innerHTML = current() ? '<div class="stack">' + navHTML(v, 'top') + body + navHTML(v, 'bottom') + '</div>' : body;
   const s = current() ? selected() : null;
-  document.title = (v === 'report' && s ? s.name + ' 진단 리포트' : v === 'compare' ? '나란히 비교' : '가맹저울') + ' · 프랜차이즈 가맹 비교';
+  document.title = (v === 'report' && s ? s.name + ' 진단 리포트' : v === 'compare' ? '세 브랜드 비교' : '가맹저울') + ' · 프랜차이즈 가맹 비교';
 }
 function savePrefs(){ try { localStorage.setItem('gj-prefs', JSON.stringify({sector:state.sector, budget:state.budget, sort:state.sort})); } catch(e) {} }
 document.addEventListener('click', e => {
@@ -665,7 +710,8 @@ async function boot(){
       if (j && j.sectors && Object.keys(j.sectors).length){ DATA = j.sectors; INDUSTRY = j.industry || {}; META = Object.assign({}, j.meta, {sample:false}); }
     }
   } catch(e) { /* data.json 이 없으면 예시 데이터로 표시 */ }
-  SECTORS = Object.keys(DATA).sort((a,b)=>DATA[b].length - DATA[a].length);
+  const pr = x => { const i = PREFERRED.map(p=>p.replace(/\s/g,'')).indexOf(x.replace(/\s/g,'')); return i < 0 ? 999 : i; };
+  SECTORS = Object.keys(DATA).sort((a,b)=> pr(a) - pr(b) || DATA[b].length - DATA[a].length);
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem('gj-prefs') || 'null'); } catch(e) {}
   state.sector = saved && DATA[saved.sector] ? saved.sector : SECTORS[0];
