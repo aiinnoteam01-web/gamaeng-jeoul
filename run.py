@@ -62,8 +62,23 @@ def cmd_inspect(a):
                 sys.exit("--sn 정보공개서 일련번호가 필요해요 (ftc_list 의 jngIfrmpSn).")
             from collector.contentparse import extract, to_text
             body = fetch_ftc_doc(a.sn, "content")
+            text = to_text(body)
+            print("── 응답 원문 앞부분 (태그 포함) ──")
+            print(hide_key(body[:600]))
+            print("\n── 본문 글자 수:", len(text))
             print("── 본문 앞부분 ──")
-            print(hide_key(to_text(body)[:1500]))
+            print(hide_key(text[:800]))
+            for kw in ("가맹금", "가입비", "교육비", "보증금", "인테리어", "기타비용", "직영", "법 위반", "법위반"):
+                pos, shown = 0, 0
+                while shown < 2:
+                    i = text.find(kw, pos)
+                    if i < 0:
+                        break
+                    print("\n── [%s] 주변 ──" % kw)
+                    print(hide_key(text[max(0, i - 60): i + 240]))
+                    pos, shown = i + len(kw), shown + 1
+                if shown == 0:
+                    print("\n── [%s] 본문에 없음" % kw)
             vals, ev = extract(body)
             print("\n── 추출 결과 (만 원 단위) ──")
             for k, v in vals.items():
@@ -111,7 +126,9 @@ def cmd_collect(a):
             except ApiError as e:
                 print("오류:", e)
     if want("ftc_list"):
-        for y in sorted(set(years) | {years[-1] + 1}):   # 정보공개서는 연도별로 나뉘어 있어 전체 연도를 받습니다
+        import datetime as _dt
+        # 정보공개서 목록의 연도는 '그해에 등록·변경된 문서'라서 올해까지 모두 받습니다.
+        for y in range(min(years), _dt.date.today().year + 1):
             try:
                 rows, _ = fetch_ftc_list(y)
                 if rows:
