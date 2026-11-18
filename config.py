@@ -147,6 +147,16 @@ FIELDS = {
         "interior": ["intrrAmt", "jngBzmnIntrrAmt", "itrrAmt"],
         "total": ["smtnAmt", "jngBzmnTotAmt", "totAmt", "sumAmt"],
     },
+    "uj_stores": {
+        "name": ["bizesNm"],
+        "branch": ["brchNm"],
+        "large": ["indsLclsNm"],
+        "middle": ["indsMclsNm"],
+        "small": ["indsSclsNm"],
+        "dong": ["adongNm"],
+        "lon": ["lon"],
+        "lat": ["lat"],
+    },
     "ftc_list": {
         "sn": ["jngIfrmpSn"],
         "name": ["brandNm", "brndNm", "brandName"],
