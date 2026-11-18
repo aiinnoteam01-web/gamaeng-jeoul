@@ -56,7 +56,7 @@ jobs:
         run: |
           mkdir -p out
           cp site/data.json out/data.json
-          if [ -f data/review.csv ]; then cp data/review.csv out/review.csv; fi
+          cp data/*.csv out/ 2>/dev/null || true
           cd out
           git init -q
           git checkout -q -b data
