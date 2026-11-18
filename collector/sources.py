@@ -29,10 +29,10 @@ def _call_dgk(cfg, com, page, per, year_param, year):
         params[year_param] = year
     params[com["page_param"]] = page
     params[com["rows_param"]] = per
-    if com.get("format_param"):
-        params[com["format_param"][0]] = com["format_param"][1]
-    return parse_payload(get(build_url(cfg["url"], params, com["key"])))
-
+    fmt = cfg.get("format_param", com.get("format_param"))
+    if fmt:
+        params[fmt[0]] = fmt[1]
+    return parse_payload(get(build_url(cfg["url"], params, com["key"], cfg.get("key_param", "serviceKey"))))
 
 def fetch_dgk(name, year=None, inspect=False, max_pages=500):
     """공공데이터포털 API 를 페이지 끝까지 가져옵니다. 연도 요청변수 이름은 후보를 차례로 시도합니다."""
