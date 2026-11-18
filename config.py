@@ -77,6 +77,15 @@ DATA_GO_KR = {
         "extra": {},
         "enabled": True,
     },
+    "uj_stores": {
+        "title": "소상공인시장진흥공단_상가(상권)정보_API (의정부시 상가업소)",
+        "url": os.environ.get("DGK_UJ_STORES_URL") or "https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong",
+        "year_param": None,              # 연도 없이 최신 자료(분기 갱신)
+        "extra": {"divId": "signguCd", "key": "41150"},   # 의정부시 전체 (시군구 코드 41150)
+        "key_param": "ServiceKey",       # 이 API 는 인증키 이름이 대문자 S
+        "format_param": ("type", "json"),
+        "enabled": True,
+    },
     "region_sales": {
         "title": "공정거래위원회_가맹정보_지역별 업종별 평균 매출액 현황 제공 서비스",
         "url": os.environ.get("DGK_REGION_SALES_URL", ""),
