@@ -268,6 +268,10 @@ def build():
             "근거_직영점": ev.get("direct") or "", "근거_설립": ev.get("start_year") or "", "근거_법위반": ev.get("viol") or "",
         })
 
+    # 의정부 매장 수·동별 분포 (상위 30개로 줄이기 전, 업종 전체 브랜드로 순위를 매깁니다)
+    from . import uijeongbu
+    uj = uijeongbu.compute(sectors)
+    
     lim = config.LIST_LIMIT_PER_SECTOR
     out_sectors = {s: sorted(v, key=lambda x: -x["stores"])[:lim] if lim else sorted(v, key=lambda x: -x["stores"])
                    for s, v in sectors.items() if len(v) >= config.MIN_BRANDS_PER_SECTOR}
@@ -278,6 +282,7 @@ def build():
                  "salesUnit": "만원", "source": "공정거래위원회 가맹사업 정보 (공공데이터포털, 가맹사업정보제공시스템)"},
         "sectors": out_sectors,
         "industry": industry,
+        "uj": uj,
     }
     os.makedirs(os.path.dirname(config.SITE_DATA), exist_ok=True)
     with open(config.SITE_DATA, "w", encoding="utf-8") as f:
