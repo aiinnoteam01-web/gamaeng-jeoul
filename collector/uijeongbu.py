@@ -81,7 +81,7 @@ def compute(sectors):
             cand = index.get(nm[:L])
             if not cand:
                 continue
-            if L < 3 and L != len(nm):
+            if L < 3 and L != len(nm) and not (nm.endswith("점") or pick(r, "uj_stores", "branch")):
                 continue
             sector, it = cand
             want = "소매" if sector.replace(" ", "") == "편의점" else "음식"
