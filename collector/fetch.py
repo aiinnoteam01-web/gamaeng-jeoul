@@ -23,7 +23,8 @@ def build_url(base, params, key, key_param="serviceKey"):
 
 def mask(url):
     """로그에 키가 찍히지 않게 가립니다."""
-    return url.split("serviceKey=")[0] + "serviceKey=***" if "serviceKey=" in url else url
+    import re
+    return re.sub(r"([Ss]erviceKey=)[^&]+", r"\1***", url)
 
 
 def unpack(raw, encoding_header=""):
