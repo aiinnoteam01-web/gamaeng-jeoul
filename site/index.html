@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>가맹저울 · 프랜차이즈 가맹 비교</title>
+<title>의정부 프랜차이즈 비교</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -58,7 +58,7 @@ button,input,select{font:inherit;color:inherit}
 .wrap{max-width:1360px;margin:0 auto;padding:0 24px}
 .top{background:var(--surface);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-top:14px;padding-bottom:14px}
-.logo{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--accent);text-decoration:none}
+.logo{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--accent);text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{height:44px;padding:0 18px;border-radius:22px;border:1px solid var(--line);background:var(--surface);font-size:15px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
@@ -191,6 +191,13 @@ ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font
   .ctable .val{font-size:14px}
   .ctable th,.ctable td{padding:10px 6px}
 }
+.uj-field{color:#115E54;font-weight:700}
+.uj-box{border:1px solid #9FD3C9;background:#F3FAF8;border-radius:12px;padding:14px}
+.uj-title{font-size:14px;font-weight:700;color:#115E54}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .uj-box{background:#13302C;border-color:#245C54}:root:not([data-theme="light"]) .uj-title,:root:not([data-theme="light"]) .uj-field{color:#8FD8CB}}
+:root[data-theme="dark"] .uj-box{background:#13302C;border-color:#245C54}
+:root[data-theme="dark"] .uj-title,:root[data-theme="dark"] .uj-field{color:#8FD8CB}
+.subtitle{font-size:13px;color:var(--sub)}
 .empty{padding:40px 20px;text-align:center;color:var(--sub)}
 .sitefoot{border-top:1px solid var(--line);padding:18px 0 28px;font-size:12px;color:var(--sub)}
 @media (max-width:760px){
@@ -211,7 +218,7 @@ ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#list">가맹저울</a>
+    <a class="logo" href="#list">의정부 프랜차이즈 비교</a>
     <div class="chips" id="chips" role="group" aria-label="업종 선택"></div>
     <label class="field" id="moreWrap" hidden><span class="sr">다른 업종</span><select id="sectorMore" class="select"></select></label>
     <div class="tools">
@@ -222,7 +229,9 @@ ol.qs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font
         <option value="sales">연 평균매출 높은 순</option>
         <option value="cost">초기비용 낮은 순</option>
         <option value="close">폐점률 낮은 순</option>
+        <option value="uj">의정부 매장 많은 순</option>
       </select></label>
+      <label class="field uj-field" id="ujWrap" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>의정부 매장 <select id="ujFilter" class="select"><option value="all">전체</option><option value="has">의정부에 있는 브랜드</option><option value="none">의정부에 없는 브랜드</option></select></label>
     </div>
   </div>
 </header>
@@ -249,6 +258,22 @@ const SAMPLE = {
     {id:'co', name:'카페온도', parts:[1000,300,500,5100,2600], sales:30800, stores:520, direct:9, age:11, close:4.3, growth:5.4, transfer:2.2, viol:0, flow:[[45,20],[50,22],[52,24],[50,22]]}
   ]
 };
+// 예시용 의정부 매장 정보 (data.json 이 없을 때만 사용)
+const SAMPLE_UJ_BRAND = {
+  bs:{n:12, rank:1, dongs:[['송산3동',3],['의정부1동',2],['호원1동',2],['장암동',1],['신곡2동',1],['송산2동',1],['녹양동',1],['자금동',1]]},
+  sb:{n:5, rank:3, dongs:[['의정부1동',2],['송산3동',2],['가능동',1]]},
+  dn:{n:0, rank:null, dongs:[]},
+  hg:{n:9, rank:2, dongs:[['의정부2동',3],['호원2동',2],['신곡1동',2],['고산동',2]]},
+  gs:{n:3, rank:4, dongs:[['흥선동',2],['녹양동',1]]},
+  gb:{n:1, rank:5, dongs:[['송산1동',1]]},
+  lh:{n:7, rank:1, dongs:[['의정부1동',3],['송산3동',2],['자금동',2]]},
+  bn:{n:2, rank:3, dongs:[['신곡2동',1],['호원1동',1]]},
+  mb:{n:0, rank:null, dongs:[]},
+  co:{n:4, rank:2, dongs:[['송산2동',2],['장암동',1],['가능동',1]]}
+};
+Object.values(SAMPLE).forEach(list => list.forEach(b => { if (SAMPLE_UJ_BRAND[b.id]) b.uj = SAMPLE_UJ_BRAND[b.id]; }));
+const SAMPLE_UJ = {dongs:['의정부1동','의정부2동','호원1동','호원2동','장암동','신곡1동','신곡2동','송산1동','송산2동','송산3동','자금동','가능동','흥선동','녹양동','고산동'],
+  sectors:{'치킨':{total:312, top:[['바삭치킨',12]]}, '카페':{total:214, top:[['라떼하우스',7]]}}};
 let DATA = SAMPLE, INDUSTRY = {}, META = {sample:true}, SECTORS = [];
 // 상단 메뉴에 먼저 보여줄 대표 업종 순서
 const PREFERRED = ['치킨','커피','한식','분식','피자','제과제빵','편의점','일식','중식','서양식','패스트푸드','주점','기타 외국식','음료 (커피 외)','아이스크림/빙수','기타 외식','카페'];
@@ -257,7 +282,8 @@ const PART_NAMES = ['가맹금','교육비','보증금','인테리어','기타']
 const PAT_NAMES = ['개점·해지 동시 급증','성장 둔화','양도(명의변경) 증가'];
 const NA = '정보 없음';
 
-const state = {sector:null, budget:0, sort:'score', q:'', sel:null, cmp:null, prio:0, margin:8};
+const state = {sector:null, budget:0, sort:'score', q:'', sel:null, cmp:null, prio:0, margin:8, uj:'all'};
+let UJ = null;   // 의정부 상가정보 요약 (data.json 의 uj)
 
 // ── 유틸 (값이 없을 수 있다는 전제로 작성)
 const ok = v => v !== null && v !== undefined && typeof v === 'number' && !Number.isNaN(v);
@@ -273,6 +299,10 @@ const avgOf = (...a) => meanN(a);
 function normN(v, arr, higher){ if (!ok(v)) return 0.5; const g = good(arr); const mn = Math.min(...g), mx = Math.max(...g); if (mx === mn) return 0.5; const n = (v-mn)/(mx-mn); return higher ? n : 1-n; }
 function posOf(v, arr){ const g = good(arr); if (!ok(v) || !g.length) return null; const mn = Math.min(...g), mx = Math.max(...g); return mx === mn ? 50 : (v-mn)/(mx-mn)*100; }
 function trimMean(arr){ const g = good(arr).sort((a,b)=>a-b); if (g.length < 8) return meanN(g); const k = Math.floor(g.length * 0.1); return meanN(g.slice(k, g.length - k)); }
+// ── 의정부 도우미
+const ujN = b => b && b.uj ? b.uj.n : null;
+const ujDongText = (b, max) => { if (!b.uj || !b.uj.n) return '아직 의정부 매장 없음'; const d = b.uj.dongs; const t = d.slice(0, max || d.length).map(x => x[0] + ' ' + x[1]).join(' · '); return max && d.length > max ? t + ' 외 ' + (d.length - max) + '개 동' : t; };
+const ujSector = sector => UJ && UJ.sectors ? UJ.sectors[sector] : null;
 function q(arr, p){ const g = good(arr).sort((a,b)=>a-b); if (!g.length) return null; const i = (g.length-1)*p, lo = Math.floor(i), hi = Math.ceil(i); return g[lo] + (g[hi]-g[lo])*(i-lo); }
 // 막대 범위: 극단값을 빼고 업종의 대부분(하위 10%~상위 10%)이 들어가는 구간
 function rangeOf(arr){
@@ -484,8 +514,8 @@ function defaultCompare(){
 function filtered(){
   const D = current(); if (!D) return [];
   const lim = BUDGETS[state.budget][1], q = state.q.trim();
-  const L = D.list.filter(b => (lim === Infinity || (ok(b.cost) && b.cost <= lim)) && (!q || b.name.indexOf(q) >= 0));
-  const key = {score:b=>-b.score, sales:b=>-(b.sales||0), cost:b=>ok(b.cost)?b.cost:1e12, close:b=>ok(b.close)?b.close:1e12}[state.sort];
+  const L = D.list.filter(b => (lim === Infinity || (ok(b.cost) && b.cost <= lim)) && (!q || b.name.indexOf(q) >= 0) && (!UJ || state.uj === 'all' || (state.uj === 'has' ? ujN(b) > 0 : !(ujN(b) > 0))));
+  const key = {score:b=>-b.score, sales:b=>-(b.sales||0), cost:b=>ok(b.cost)?b.cost:1e12, close:b=>ok(b.close)?b.close:1e12, uj:b=>-(ujN(b)||0)}[state.sort] || (b=>-b.score);
   return L.sort((x,y)=>key(x)-key(y));
 }
 const statusCls = s => s === '해당' || s === '위험' ? 's-bad' : s === '주의' ? 's-warn' : s === '정보 부족' ? 's-na' : 's-ok';
@@ -499,6 +529,8 @@ function renderList(){
   const D = current();
   if (!D) return '<div class="card empty"><p class="h2" style="font-size:18px">이 업종은 아직 데이터가 없어요</p><p>다른 업종을 골라 보세요.</p></div>';
   const s = selected(), rows = filtered(), n = D.list.length;
+  const us = ujSector(state.sector);
+  const ujCard = UJ && us ? '<article class="card insight uj-box"><div class="tag uj-title">의정부 ' + esc(state.sector) + ' 상권</div><div class="head">' + (ok(us.total) ? '의정부에 ' + esc(state.sector) + ' 매장이 ' + us.total.toLocaleString('ko-KR') + '곳 있어요' : '의정부 매장 현황') + '</div><div class="sub">' + (us.top && us.top.length ? '의정부 매장이 가장 많은 브랜드: ' + esc(us.top[0][0]) + ' ' + us.top[0][1] + '곳' : '') + '</div></article>' : '';
   const ins = D.insights.map(i => '<article class="card insight"><div class="tag">' + esc(i.tag) + '</div><div class="head">' + esc(i.head) + '</div><div class="sub">' + esc(i.sub) + '</div></article>').join('');
   const sortCol = state.sort;
   const tr = rows.length ? rows.map(b => '<tr class="' + (b === s ? 'on' : '') + '">' +
@@ -507,8 +539,8 @@ function renderList(){
     '<td>' + (ok(D.avg.sales) ? '<span class="' + (b.sales >= D.avg.sales ? 'up' : 'down') + '">' + pctS((b.sales-D.avg.sales)/D.avg.sales*100) + '</span>' : '') + '<div class="small">' + wonM(b.sales) + '</div></td>' +
     '<td><strong>' + wonM(b.cost) + '</strong><div class="small">' + (ok(b.eff) ? b.eff.toFixed(1) + '배 효율' : '') + '</div></td>' +
     '<td><span class="' + (ok(b.close) && ok(D.avg.close) && b.close > D.avg.close ? 'down' : '') + '" style="font-weight:700">' + pct(b.close) + '</span></td>' +
-    '<td style="padding-right:20px;font-weight:700">' + months(payback(b, state.margin)) + '</td></tr>').join('')
-    : '<tr><td colspan="6" class="empty">조건에 맞는 브랜드가 없어요. 예산을 늘리거나 검색어를 지워 보세요. 초기비용이 확인되지 않은 브랜드는 예산을 “전체”로 두어야 보여요.</td></tr>';
+    '<td style="font-weight:700">' + months(payback(b, state.margin)) + '</td>' + (UJ ? '<td style="padding-right:20px"><strong>' + (ujN(b) ? b.uj.n + '곳' : '없음') + '</strong><div class="small">' + (ujN(b) ? esc(ujDongText(b, 2)) : '') + '</div></td>' : '') + '</tr>').join('')
+    : '<tr><td colspan="7" class="empty">조건에 맞는 브랜드가 없어요. 예산을 늘리거나 검색어를 지워 보세요. 초기비용이 확인되지 않은 브랜드는 예산을 “전체”로 두어야 보여요.</td></tr>';
   const th = (key, label, sub) => '<th scope="col" class="' + (sortCol === key ? 'sorted' : '') + '">' + label + (sub ? '<div style="font-weight:400">' + sub + '</div>' : '') + '</th>';
   const P = D.list.filter(b=>ok(b.cost) && ok(b.sales));
   const RX = rangeOf(P.map(b=>b.cost)), RY = rangeOf(P.map(b=>b.sales));
@@ -526,11 +558,11 @@ function renderList(){
   const ns = { sales: D.list.filter(b=>ok(b.sales)).length, eff: D.list.filter(b=>ok(b.eff)).length };
   const tiles = [['매출',s.rk.sales,ns.sales],['비용효율',s.rk.eff,ns.eff],['안정성',s.rk.stab,n],['성장성',s.rk.growth,n]].map(t => '<div class="tile"><div>' + t[0] + '</div><div style="color:' + rankColor(t[1], t[2]) + '">' + (ok(t[1]) ? t[1] + '위' : '–') + '</div></div>').join('');
   const pats = s.patterns.map(p => '<div class="patline"><span>' + esc(p.name) + '</span><span class="pill ' + statusCls(p.status) + '">' + p.status + '</span></div>').join('');
-  return '<div class="stack">' + banner() +
-    '<section aria-label="업종 분석 요약"><div class="row-between" style="margin-bottom:12px"><h1 class="h2">' + esc(state.sector) + ' 업종, 데이터로 보면</h1><span class="meta">' + n + '개 브랜드 분석 (예산 필터와 무관하게 업종 전체 기준)</span></div><div class="grid3">' + ins + '</div></section>' +
+  return '<div class="stack">' + banner() + '<p class="subtitle" style="margin:0">업종별 가맹점 수 상위 ' + n + '개 브랜드를 전국 자료로 비교하고, 의정부 매장 현황을 함께 보여드려요.</p>' +
+    '<section aria-label="업종 분석 요약"><div class="row-between" style="margin-bottom:12px"><h1 class="h2">' + esc(state.sector) + ' 업종, 데이터로 보면</h1><span class="meta">' + n + '개 브랜드 분석 (예산 필터와 무관하게 업종 전체 기준)</span></div><div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + ins + ujCard + '</div></section>' +
     '<div class="split">' +
       '<section class="card main" aria-label="브랜드 분석표" style="overflow:hidden"><div class="scroll"><table style="min-width:820px"><thead><tr>' +
-        '<th scope="col" style="text-align:left;padding-left:20px">브랜드 · 한 줄 분석</th>' + th('score','진단') + th('sales','매출','업종 평균 대비') + th('cost','초기비용') + th('close','폐점률', ok(D.avg.close) ? '평균 ' + D.avg.close.toFixed(1) + '%' : '') + '<th scope="col" style="padding-right:20px">회수기간<div style="font-weight:400">이익률 ' + state.margin + '% 가정</div></th>' +
+        '<th scope="col" style="text-align:left;padding-left:20px">브랜드 · 한 줄 분석</th>' + th('score','진단') + th('sales','매출','업종 평균 대비') + th('cost','초기비용') + th('close','폐점률', ok(D.avg.close) ? '평균 ' + D.avg.close.toFixed(1) + '%' : '') + '<th scope="col">회수기간<div style="font-weight:400">이익률 ' + state.margin + '% 가정</div></th>' + (UJ ? '<th scope="col" class="' + (state.sort === 'uj' ? 'sorted' : '') + '" style="padding-right:20px;color:#115E54">의정부 매장</th>' : '') +
       '</tr></thead><tbody>' + tr + '</tbody></table></div>' +
       '<p class="foot">브랜드명을 누르면 오른쪽 진단이 바뀝니다. 진단 점수 = 수익성 30 + 비용효율 20 + 안정성 30 + 본부 신뢰도 20 (업종 내 상대평가, 모든 브랜드 동일 기준). 확인되지 않은 항목은 중간값으로 처리합니다. 폐점률 평균: ' + esc(D.avg.closeSrc) + '.</p></section>' +
       '<aside class="card side panel" aria-label="선택한 브랜드 진단" aria-live="polite">' +
@@ -540,7 +572,7 @@ function renderList(){
         '<div><div class="row-between" style="margin-bottom:8px"><span class="sec-title" style="margin:0">업종 내 위치</span><span class="small" style="font-size:12px">점을 눌러도 선택돼요</span></div>' + plot + '</div>' +
         '<div><div class="sec-title">위험 패턴 탐지</div><div class="patterns">' + pats + '</div></div>' +
         '<div><div class="sec-title">상담 때 꼭 물어볼 것</div><ol class="qs">' + s.questions.slice(0,3).map(q=>'<li>' + esc(q) + '</li>').join('') + '</ol></div>' +
-        '<div class="btns"><a class="btn primary" href="#report">진단 리포트 전체 보기</a><a class="btn" href="#compare" data-act="cmp-reset">세 브랜드 비교</a></div>' +
+        '' + (UJ ? '<div class="uj-box"><div class="uj-title">의정부에서는</div><div style="display:flex;align-items:baseline;gap:8px;margin-top:4px"><span style="font-size:24px;font-weight:800">' + (ujN(s) ? s.uj.n + '곳' : '매장 없음') + '</span>' + (s.uj && s.uj.rank ? '<span class="small">' + esc(state.sector) + ' 브랜드 중 매장 수 ' + s.uj.rank + '위</span>' : '') + '</div><div style="font-size:13px;margin-top:6px;line-height:1.6">' + esc(ujDongText(s)) + '</div></div>' : '') + '<div class="btns"><a class="btn primary" href="#report">진단 리포트 전체 보기</a><a class="btn" href="#compare" data-act="cmp-reset">세 브랜드 비교</a></div>' +
       '</aside>' +
     '</div></div>';
 }
@@ -585,6 +617,17 @@ function renderReport(){
     const oSum = sum(s.flow.map(f=>f[0])), cSum = sum(s.flow.map(f=>f[1]));
     flowNote = cSum === 0 ? '기간 중 폐점이 없었어요.' : oSum > cSum ? s.flow.length + '년간 개점이 폐점의 약 ' + (oSum/cSum).toFixed(1) + '배였어요.' + (s.flow.length > 1 && s.flow[s.flow.length-1][1] > s.flow[0][1] ? ' 다만 폐점 수는 늘어나는 추세예요.' : '') : s.flow.length + '년간 폐점이 개점보다 많아 가맹점이 줄고 있어요.';
   }
+  const usr = ujSector(state.sector);
+  const has = s.uj ? s.uj.dongs.map(d => d[0]) : [];
+  const noDongs = UJ ? (UJ.dongs || []).filter(d => has.indexOf(d) < 0) : [];
+  const ujReport = !UJ ? '' : '<section class="card uj-box" style="padding:20px;display:flex;flex-direction:column;gap:12px" aria-label="의정부에서는">' +
+    '<div class="row-between"><h2 class="uj-title" style="margin:0;font-size:17px;font-weight:800">의정부에서는</h2><span class="small" style="font-size:11px">소상공인 상가(상권)정보 기준</span></div>' +
+    '<div><div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span style="font-size:28px;font-weight:800">' + (ujN(s) ? s.uj.n + '곳' : '매장 없음') + '</span>' + (s.uj && s.uj.rank ? '<span class="uj-title" style="font-size:13px">' + esc(state.sector) + ' 브랜드 중 매장 수 ' + s.uj.rank + '위</span>' : '') + '</div>' +
+    (usr && ok(usr.total) && usr.total && ujN(s) ? '<div class="small" style="margin-top:2px">의정부 ' + esc(state.sector) + ' 매장 ' + usr.total.toLocaleString('ko-KR') + '곳 중 ' + (ujN(s) / usr.total * 100).toFixed(1) + '%</div>' : '') + '</div>' +
+    '<div><div style="font-size:13px;font-weight:700;margin-bottom:4px">매장 있는 동 (' + has.length + '곳)</div><div style="font-size:14px;line-height:1.7">' + (has.length ? esc(ujDongText(s)) : '아직 의정부에 매장이 없어요') + '</div></div>' +
+    (noDongs.length && has.length ? '<div><div style="font-size:13px;font-weight:700;margin-bottom:4px">매장 없는 동 (' + noDongs.length + '곳)</div><div style="font-size:14px;line-height:1.7;color:var(--sub)">' + noDongs.map(esc).join(' · ') + '</div></div>' : '') +
+    '<p class="small" style="margin:0;padding:10px 12px;background:var(--strong-bg);border-radius:10px;color:var(--warn-fg)">의정부 매장 수는 상호명으로 찾은 값이라 일부 차이가 있을 수 있어요. 의정부 매출·폐점률은 공개 자료가 없어 전국 기준입니다.</p>' +
+    '</section>';
   const pats = s.patterns.map(p => '<div class="patcard"><div class="row-between" style="align-items:center"><span style="font-size:14px;font-weight:700">' + esc(p.name) + '</span><span class="pill ' + statusCls(p.status) + '">' + p.status + '</span></div><div class="note" style="margin-top:4px">' + esc(p.desc) + '</div></div>').join('');
   const sim = D.list.filter(b=>b!==s).sort((x,y)=>distance(x,s)-distance(y,s)).slice(0,2);
   const diff = (a, b) => ok(a) && ok(b) ? (a-b >= 0 ? '+' : '−') + won(Math.abs(a-b)) + '만' : NA;
@@ -592,12 +635,12 @@ function renderReport(){
   const weak = s.weak.length ? s.weak.slice(0,4).map(w=>'<li>' + esc(w.l) + '</li>').join('') : '<li>눈에 띄는 약점이 없어요.</li>';
   return '<div class="stack">' + banner() +
     '<section class="card hero" aria-label="종합 진단"><div class="who"><div class="gradecircle big g-' + s.grade + '"><b>' + s.grade + '</b><span>' + s.score + '점, ' + s.overall + '위</span></div><div><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h1 style="margin:0;font-size:30px;font-weight:800">' + esc(s.name) + '</h1><span class="pill ' + statusCls(s.risk) + '">리스크 ' + s.risk + '</span></div>' + (s.corp ? '<div class="small">' + esc(s.corp) + (s.year ? ', ' + s.year + '년 기준' : '') + '</div>' : '') + '<p style="margin:6px 0 0;font-size:15px;line-height:1.65;color:var(--sub)">' + esc(s.comment) + '</p></div></div>' +
-      '<dl class="kv"><div><dt>초기비용</dt><dd>' + wonM(s.cost) + '</dd></div><div><dt>연 평균매출</dt><dd>' + wonM(s.sales) + '</dd></div><div><dt>추정 회수기간</dt><dd>' + months(payback(s, state.margin)) + '</dd></div><div><dt>가맹점</dt><dd>' + s.stores.toLocaleString('ko-KR') + '곳</dd></div><div><dt>폐점률</dt><dd>' + pct(s.close) + '</dd></div><div><dt>직영점</dt><dd>' + (ok(s.direct) ? s.direct + '곳' : NA) + '</dd></div></dl></section>' +
+      '<dl class="kv"><div><dt>초기비용</dt><dd>' + wonM(s.cost) + '</dd></div><div><dt>연 평균매출</dt><dd>' + wonM(s.sales) + '</dd></div><div><dt>추정 회수기간</dt><dd>' + months(payback(s, state.margin)) + '</dd></div><div><dt>가맹점</dt><dd>' + s.stores.toLocaleString('ko-KR') + '곳</dd></div><div><dt>폐점률</dt><dd>' + pct(s.close) + '</dd></div><div><dt>직영점</dt><dd>' + (ok(s.direct) ? s.direct + '곳' : NA) + '</dd></div>' + (UJ ? '<div><dt style="color:#115E54;font-weight:700">의정부 매장</dt><dd>' + (ujN(s) ? s.uj.n + '곳' : '없음') + '</dd></div>' : '') + '</dl></section>' +
     '<div class="split">' +
       '<section class="card main" style="padding:24px" aria-label="항목별 업종 내 위치와 해석"><h2 style="margin:0;font-size:17px;font-weight:800">항목별 업종 내 위치와 해석</h2><div class="small" style="margin:4px 0 8px">막대는 업종 대부분(하위 10%~상위 10%)이 들어가는 범위, 세로선과 숫자는 업종 평균(극단값 제외)</div>' + tracks + '</section>' +
       '<div class="side stack">' +
         '<section class="card" style="padding:22px;display:flex;flex-direction:column;gap:12px" aria-label="강점과 확인할 점"><div class="box" style="background:var(--accent-soft)"><div style="font-size:14px;font-weight:700;color:var(--accent-strong)">강점</div><ul>' + s.strengths.slice(0,3).map(t=>'<li>' + esc(t) + '</li>').join('') + '</ul></div><div class="box" style="background:var(--strong-bg)"><div style="font-size:14px;font-weight:700;color:var(--warn-fg)">확인할 점</div><ul>' + weak + '</ul></div></section>' +
-        '<section class="card" style="padding:22px" aria-label="초기비용 구성"><div class="sec-title" style="font-size:15px;font-weight:800">초기비용 구성 <span style="font-weight:400;color:var(--sub)">' + (ok(s.cost) ? '합계 ' + won(s.cost) + '만 원' : '') + '</span></div>' + costHTML + '</section>' +
+        '<section class="card" style="padding:22px" aria-label="초기비용 구성"><div class="sec-title" style="font-size:15px;font-weight:800">초기비용 구성 <span style="font-weight:400;color:var(--sub)">' + (ok(s.cost) ? '합계 ' + won(s.cost) + '만 원' : '') + '</span></div>' + costHTML + '</section>' + ujReport +
       '</div>' +
     '</div>' +
     '<div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">' +
@@ -660,6 +703,16 @@ function renderCompare(){
     return '<tr><th scope="row"><div style="font-weight:700">' + m.label + '</div><div class="small" style="font-size:12px;font-weight:400">' + m.dir + '</div></th>' + cells + avgCell + '</tr>' +
       '<tr class="ex"><td></td><td colspan="4">' + esc(text) + '</td></tr>';
   }).join('');
+  let ujRow = '';
+  if (UJ){
+    const ns = set.map(b => ujN(b) || 0), mx = Math.max(...ns), uniq = ns.filter(n => n === mx).length === 1;
+    const avgUj = meanN(D.list.map(b => ujN(b) || 0)), usc = ujSector(state.sector);
+    const ui = ns.indexOf(mx);
+    ujRow = '<tr style="background:var(--muted)"><th scope="row"><div style="font-weight:700" class="uj-title">의정부 매장 수</div><div class="small" style="font-size:12px;font-weight:400">상가정보 기준</div></th>' +
+      set.map((b,i) => '<td><span class="val' + (i === ui && uniq && mx > 0 ? ' best' : '') + '">' + (ns[i] ? ns[i] + '곳' : '없음') + '</span>' + (i === ui && uniq && mx > 0 ? ' <span class="pill s-ok" style="font-size:11px">가장 많음</span>' : '') + '<span class="sub">' + esc(ns[i] ? ujDongText(b, 2) : '') + '</span></td>').join('') +
+      '<td class="avgc"><span class="val">' + (ok(avgUj) ? avgUj.toFixed(1) + '곳' : NA) + '</span><span class="sub">' + (usc && ok(usc.total) ? '의정부 ' + esc(state.sector) + ' 매장 ' + usc.total.toLocaleString('ko-KR') + '곳 · ' : '') + '브랜드당 평균</span></td></tr>' +
+      '<tr class="ex"><td></td><td colspan="4">' + (mx > 0 && uniq ? '의정부에는 ' + esc(set[ui].name) + ' 매장이 가장 많아요. 매장이 많을수록 브랜드 인지도는 높지만, 같은 동네에서 서로 경쟁할 수 있어요.' : mx > 0 ? '의정부 매장 수가 비슷해요.' : '세 브랜드 모두 아직 의정부 매장이 없어요.') + ' 의정부 매장 수만 의정부 기준이고, 나머지는 전국 기준이에요.</td></tr>';
+  }
   const patRow = '<tr><th scope="row" style="font-weight:700">위험 패턴</th>' + set.map(b => { const f = b.patterns.filter(p=>p.status==='해당' || p.status==='주의'); return '<td><div style="display:flex;flex-wrap:wrap;gap:6px">' + (f.length ? f.map(p=>'<span class="pill ' + statusCls(p.status) + '">' + esc(p.name) + '</span>').join('') : '<span class="pill s-ok">패턴 없음</span>') + '</div></td>'; }).join('') + '<td class="avgc"></td></tr>';
   const head = '<thead><tr><th scope="col" style="width:150px">항목</th>' + set.map((b,i) => '<th scope="col"><i class="vdot" style="background:' + colors[i] + '"></i>' + esc(b.name) + '</th>').join('') + '<th scope="col" class="avgc">업종 평균</th></tr></thead>';
   const P = PRIOS[state.prio];
@@ -671,7 +724,7 @@ function renderCompare(){
     '<h1 style="margin:0;font-size:20px;font-weight:800">세 브랜드 비교</h1>' +
     '<div class="cmp-sel">' + selects + '</div>' +
     '<section class="band" aria-label="비교 결론"><div style="font-size:13px;color:var(--band-sub);font-weight:700">분석 결론</div><div style="font-size:18px;font-weight:800;margin-top:4px;line-height:1.4">무엇을 중시하느냐에 따라 답이 달라요</div><div class="cmp-band">' + concl + '</div></section>' +
-    '<section class="card" aria-label="항목별 비교" style="overflow:hidden"><div class="scroll"><table class="ctable">' + head + '<tbody>' + rows + patRow + '</tbody></table></div>' +
+    '<section class="card" aria-label="항목별 비교" style="overflow:hidden"><div class="scroll"><table class="ctable">' + head + '<tbody>' + rows + ujRow + patRow + '</tbody></table></div>' +
     '<p class="foot">업종 평균은 업종별 가맹점 수 상위 ' + D.list.length + '개 브랜드에서 상·하위 10% 극단값을 뺀 평균입니다. 폐점률 평균은 ' + esc(D.avg.closeSrc) + ' 기준입니다.</p></section>' +
     '<section class="prio" aria-label="우선순위별 다시 보기"><div style="flex:1 1 320px"><h2 style="margin:0;font-size:18px;font-weight:800">내 우선순위로 다시 보기</h2><div class="small" style="margin-top:4px">기준을 누르면 순위가 다시 계산돼요</div><div class="chips" style="margin-top:14px">' + prioBtns + '</div>' +
       '<label style="display:block;margin-top:18px;font-size:14px;color:var(--sub)">예상 영업이익률 <strong style="color:var(--text);font-size:16px">' + state.margin + '%</strong><input type="range" min="4" max="20" step="1" value="' + state.margin + '" data-act="margin" style="width:100%;accent-color:var(--accent);margin-top:6px"></label><div class="small" style="font-size:12px">회수기간 = 초기비용 ÷ (연매출 × 이익률 ÷ 12)</div></div>' +
@@ -691,10 +744,13 @@ function renderHeader(){
     document.getElementById('sectorMore').innerHTML = '<option value="">다른 업종 (' + SECTORS.length + ')</option>' + SECTORS.map(s => '<option value="' + esc(s) + '">' + esc(s) + ' (' + DATA[s].length + ')</option>').join('');
   } else more.hidden = true;
   document.getElementById('budget').innerHTML = BUDGETS.map((b,i)=>'<option value="' + i + '"' + (i === state.budget ? ' selected' : '') + '>' + b[0] + '</option>').join('');
+  document.getElementById('ujWrap').hidden = !UJ;
+  const so = document.querySelector('#sort option[value="uj"]'); if (so) so.hidden = !UJ;
+  if (!UJ && state.sort === 'uj') state.sort = 'score';
   document.getElementById('sort').value = state.sort;
   document.getElementById('footnote').textContent = META.sample
     ? '화면의 브랜드와 수치는 예시용 가상 데이터입니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.'
-    : '출처: ' + (META.source || '공정거래위원회 가맹사업 정보') + ', ' + (META.latestYear ? META.latestYear + '년 기준, ' : '') + (META.generatedAt ? META.generatedAt + ' 수집. ' : '') + '정보공개서 본문에서 자동 추출한 항목(초기비용·직영점·업력·법 위반)은 오차가 있을 수 있어 원문 확인이 필요합니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.';
+    : '출처: ' + (META.source || '공정거래위원회 가맹사업 정보') + ', ' + (META.latestYear ? META.latestYear + '년 기준, ' : '') + (META.generatedAt ? META.generatedAt + ' 수집. ' : '') + (UJ ? '의정부 매장 정보: 소상공인시장진흥공단 상가(상권)정보. ' : '') + '공공데이터 활용 사이트이며 의정부시 공식 사이트가 아닙니다. 정보공개서 본문에서 자동 추출한 항목(초기비용·직영점·업력·법 위반)은 오차가 있을 수 있어 원문 확인이 필요합니다. 분석과 추정치는 참고용이며 실제 매출과 수익을 보장하지 않습니다.';
 }
 function setSector(s){ state.sector = s; state.sel = null; state.cmp = null; savePrefs(); renderHeader(); if (view() !== 'list') location.hash = 'list'; render(); }
 function navHTML(v, where){
@@ -709,7 +765,7 @@ function render(){
   const body = v === 'report' ? renderReport() : v === 'compare' ? renderCompare() : renderList();
   app.innerHTML = current() ? '<div class="stack">' + navHTML(v, 'top') + body + navHTML(v, 'bottom') + '</div>' : body;
   const s = current() ? selected() : null;
-  document.title = (v === 'report' && s ? s.name + ' 진단 리포트' : v === 'compare' ? '세 브랜드 비교' : '가맹저울') + ' · 프랜차이즈 가맹 비교';
+  document.title = (v === 'report' && s ? s.name + ' 진단 리포트' : v === 'compare' ? '세 브랜드 비교' : '전체 목록') + ' · 의정부 프랜차이즈 비교';
 }
 function savePrefs(){ try { localStorage.setItem('gj-prefs', JSON.stringify({sector:state.sector, budget:state.budget, sort:state.sort})); } catch(e) {} }
 document.addEventListener('click', e => {
@@ -723,6 +779,7 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'budget'){ state.budget = +t.value; savePrefs(); render(); }
+  else if (t.id === 'ujFilter'){ state.uj = t.value; render(); }
   else if (t.id === 'sort'){ state.sort = t.value; savePrefs(); render(); }
   else if (t.id === 'sectorMore'){ if (t.value) setSector(t.value); }
   else if (t.dataset && t.dataset.act === 'cmp-pick'){ const i = +t.dataset.slot; state.cmp[i] = t.value; if (i === 0) state.sel = t.value; render(); }
@@ -739,9 +796,10 @@ async function boot(){
     const r = await fetch('data.json', {cache:'no-store'});
     if (r.ok){
       const j = await r.json();
-      if (j && j.sectors && Object.keys(j.sectors).length){ DATA = j.sectors; INDUSTRY = j.industry || {}; META = Object.assign({}, j.meta, {sample:false}); }
+      if (j && j.sectors && Object.keys(j.sectors).length){ DATA = j.sectors; INDUSTRY = j.industry || {}; META = Object.assign({}, j.meta, {sample:false}); UJ = j.uj || null; }
     }
   } catch(e) { /* data.json 이 없으면 예시 데이터로 표시 */ }
+  if (META.sample) UJ = SAMPLE_UJ;
   const pr = x => { const i = PREFERRED.map(p=>p.replace(/\s/g,'')).indexOf(x.replace(/\s/g,'')); return i < 0 ? 999 : i; };
   SECTORS = Object.keys(DATA).sort((a,b)=> pr(a) - pr(b) || DATA[b].length - DATA[a].length);
   let saved = null;
