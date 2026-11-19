@@ -90,6 +90,9 @@ def compute(sectors):
             hit = it
             break
         if hit:
+            place = r.get("bldMngNo") or r.get("rdnmAdr")
+            if place and any((x.get("bldMngNo") or x.get("rdnmAdr")) == place for x in matched[hit["id"]]):
+                continue   # 같은 건물에 같은 브랜드가 두 번 등록된 경우 한 곳으로 셈
             matched[hit["id"]].append(r)
         elif pick(r, "uj_stores", "branch") and ("음식" in large or "소매" in large):
             key = pick(r, "uj_stores", "name")
